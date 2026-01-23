@@ -36,19 +36,34 @@ info(logger, "INSTANTIATING STUDY COHORTS")
 source(here("Cohorts", "InstantiateCohorts.R"))
 info(logger, "STUDY COHORTS INSTANTIATED")
 
-# run diagnostics ----
-info(logger, "RUN PHENOTYPER")
-source(here("PhenotypeR", "PhenotypeR.R"))
-info(logger, "PHENOTYPER FINISHED")
-
 # run analyses ----
-info(logger, "RUN ANALYSES")
-source(here("Analyses", "1-ExampleAnalysis.R"))
-info(logger, "ANALYSES FINISHED")
+if(isTRUE(run_drug_utilisation)){
+info(logger, "RUN DRUG UTILISATION")
+source(here("Analyses", "drugUtilisation.R"))
+info(logger, "DRUG UTILISATION FINISHED")
+}
+
+if(isTRUE(run_drug_adherence)){
+info(logger, "RUN DRUG ADHERENCE")
+source(here("Analyses", "drugAdherence.R"))
+info(logger, "DRUG ADHERENCE FINISHED")
+}
+
+if(isTRUE(run_characteristics)){
+info(logger, "RUN SUMMARISE CHARACTERISTICS")
+source(here("Analyses", "characteristics.R"))
+info(logger, "SUMMARISE CHARACTERISTICS FINISHED")
+}
 
 # export results ----
 info(logger, "EXPORTING RESULTS")
-zip(
-  zipfile = file.path(paste0(resultsFolder, "/Results_", cdmName(cdm), ".zip")),
-  files = list.files(resultsFolder, full.names = TRUE)
+result <- omopgenerics::bind(results)
+omopgenerics::exportSummarisedResult(result,
+                                     minCellCount = min_cell_count,
+                                     path = results_folder,
+                                     fileName = "results_{cdm_name}_{date}.csv"
 )
+info(logger, "RESULTS EXPORTED")
+
+info(logger, "STUDY CODE FINISHED")
+
