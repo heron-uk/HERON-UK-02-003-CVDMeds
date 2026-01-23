@@ -38,5 +38,5 @@ vignettes/*.pdf
 # R Environment Variables
 .Renviron
 
-Results/*.csv
+Results/
 CodeToRunLocal.R
