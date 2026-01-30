@@ -566,8 +566,8 @@
     },
     "PhenotypeR": {
       "Package": "PhenotypeR",
-      "Version": "0.3.9000",
-      "Source": "GitHub",
+      "Version": "0.3.1",
+      "Source": "Repository",
       "Type": "Package",
       "Title": "Assess Study Cohorts Using a Common Data Model",
       "Authors@R": "c( person(\"Edward\", \"Burn\", , \"edward.burn@ndorms.ox.ac.uk\",  role = c(\"aut\", \"cre\"), comment = c(ORCID = \"0000-0002-9286-1128\")), person(\"Marti\", \"Catala\", , \"marti.catalasabate@ndorms.ox.ac.uk\",  role = c(\"aut\"), comment = c(ORCID = \"0000-0003-3308-9905\")), person(\"Xihang\", \"Chen\", , \"xihang.chen@ndorms.ox.ac.uk\",  role = c(\"aut\"), comment = c(ORCID = \"0009-0001-8112-8959\")), person(\"Marta\", \"Alcalde-Herraiz\", , \"marta.alcaldeherraiz@ndorms.ox.ac.uk\",  role = c(\"aut\"), comment = c(ORCID = \"0009-0002-4405-1814\")), person(\"Nuria\", \"Mercade-Besora\", , \"nuria.mercadebesora@ndorms.ox.ac.uk\",  role = c(\"aut\"), comment = c(ORCID = \"0009-0006-7948-3747\")), person(\"Albert\", \"Prats-Uribe\", , \"albert.prats-uribe@ndorms.ox.ac.uk\",  role = \"aut\", comment = c(ORCID = \"0000-0003-1202-9153\")))",
@@ -638,15 +638,10 @@
       ],
       "URL": "https://ohdsi.github.io/PhenotypeR/",
       "VignetteBuilder": "knitr",
-      "RemoteType": "github",
-      "RemoteHost": "api.github.com",
-      "RemoteRepo": "PhenotypeR",
-      "RemoteUsername": "OHDSI",
-      "RemoteRef": "HEAD",
-      "RemoteSha": "112949e0314c6b32c8e65dd6a81796151854ea6d",
       "NeedsCompilation": "no",
       "Author": "Edward Burn [aut, cre] (ORCID: <https://orcid.org/0000-0002-9286-1128>), Marti Catala [aut] (ORCID: <https://orcid.org/0000-0003-3308-9905>), Xihang Chen [aut] (ORCID: <https://orcid.org/0009-0001-8112-8959>), Marta Alcalde-Herraiz [aut] (ORCID: <https://orcid.org/0009-0002-4405-1814>), Nuria Mercade-Besora [aut] (ORCID: <https://orcid.org/0009-0006-7948-3747>), Albert Prats-Uribe [aut] (ORCID: <https://orcid.org/0000-0003-1202-9153>)",
-      "Maintainer": "Edward Burn <edward.burn@ndorms.ox.ac.uk>"
+      "Maintainer": "Edward Burn <edward.burn@ndorms.ox.ac.uk>",
+      "Repository": "CRAN"
     },
     "R6": {
       "Package": "R6",

@@ -40,3 +40,6 @@ vignettes/*.pdf
 diagnostics_code/Results/*.txt
 diagnostics_code/Results/*.csv
 
+diagnostics_shiny/data/raw/*.csv
+diagnostics_shiny/data/appData.RData
+diagnostics_shiny/data/appData.qs
