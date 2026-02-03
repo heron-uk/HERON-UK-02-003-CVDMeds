@@ -53,10 +53,9 @@ exportCodelist(aspirin, path = here::here("Cohorts", "drugs"),
 acei_arbs <- getDrugIngredientCodes(
   cdm = cdm_vocab_2025_08,
   name = c(# acei
-    "captopril", "cilazapril", 
-    "enalapril", "fosinopril", "imidapril",    
-    "lisinopril", "moexipril", "perindopril", "quinapril",
-    "ramipril", "trandolapril",   
+    "captopril", "enalapril", "fosinopril", 
+    "imidapril", "lisinopril", "perindopril", "quinapril", 
+    "ramipril", "trandolapril",
     # arbs
     "azilsartan", "candesartan", "eprosartan", "irbesartan",        
     "losartan", "olmesartan", "telmisartan", "valsartan"),
@@ -72,6 +71,55 @@ acei_arbs <- c(acei_arbs_all, acei_arbs) %>%
   omopgenerics::newCodelist()
 
 exportCodelist(acei_arbs, path = here::here("Cohorts", "drugs"),
+               type = "csv")
+
+# Diuretic (thiazide) ----
+thiazide_diuretic <- getDrugIngredientCodes(
+  cdm = cdm_vocab_2025_08,
+  name = c("indapamide", "chlorthalidone", "metolazone",
+           "xipamide", "bendroflumethiazide"),
+  nameStyle = "{concept_name}",
+  type = "codelist")
+names(thiazide_diuretic) <- paste0("thiazide_diuretic_", names(thiazide_diuretic))
+
+
+thiazide_diuretic_all <- thiazide_diuretic %>% 
+  unionCodelists()
+names(thiazide_diuretic_all) <- "thiazide_diuretics"
+
+thiazide_diuretic <- c(thiazide_diuretic_all, thiazide_diuretic) %>% 
+  omopgenerics::newCodelist()
+
+exportCodelist(thiazide_diuretic, path = here::here("Cohorts", "drugs"),
+               type = "csv")
+
+# Calcium-channel blocker ----
+calcium_channel_blocker <- getDrugIngredientCodes(
+  cdm = cdm_vocab_2025_08,
+  name = c("amlodipine", "felodipine", "lacidipine", "lercanidipine", 
+           "nicardipine", "nifedipine", "verapamil", "diltiazem"),
+  nameStyle = "{concept_name}",
+  type = "codelist")
+names(calcium_channel_blocker) <- paste0("calcium_channel_blocker_", names(calcium_channel_blocker))
+
+calcium_channel_blocker_all <- calcium_channel_blocker %>% 
+  unionCodelists()
+names(calcium_channel_blocker_all) <- "calcium_channel_blockers"
+
+calcium_channel_blocker <- c(calcium_channel_blocker_all, calcium_channel_blocker) %>% 
+  omopgenerics::newCodelist()
+
+exportCodelist(calcium_channel_blocker, path = here::here("Cohorts", "drugs"),
+               type = "csv")
+
+# antihyperensive ----
+antihyperensives <- c(acei_arbs_all,
+                      thiazide_diuretic_all,
+                      calcium_channel_blocker_all) %>% 
+  omopgenerics::newCodelist() %>% 
+  unionCodelists()
+names(antihyperensives) <- "antihyperensives"
+exportCodelist(antihyperensives, path = here::here("Cohorts", "drugs"),
                type = "csv")
 
 # statin -------
