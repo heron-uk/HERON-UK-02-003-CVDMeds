@@ -22,7 +22,8 @@ exportCodelist(beta_blockers, path = here::here("Cohorts", "drugs"),
 # P2Y12 inhibitors -----
 p2y12_inhibitors <- getDrugIngredientCodes(
   cdm = cdm_vocab_2025_08,
-  name = c("clopidogrel", "ticagrelor", "prasugrel"),
+  name = c("clopidogrel", "ticagrelor", 
+           "prasugrel", "cangrelor"),
   nameStyle = "{concept_name}",
   type = "codelist")
 names(p2y12_inhibitors) <- paste0("p2y12_inhibitors_", names(p2y12_inhibitors))
@@ -126,7 +127,7 @@ exportCodelist(antihyperensives, path = here::here("Cohorts", "drugs"),
 statin <- getDrugIngredientCodes(
   cdm = cdm_vocab_2025_08,
   name = c("atorvastatin", "rosuvastatin", "simvastatin", 
-           "pravastatin", "Fluvastatin"),
+           "pravastatin", "fluvastatin"),
   nameStyle = "{concept_name}",
   type = "codelist")
 names(statin) <- paste0("statin_", names(statin))
@@ -139,4 +140,101 @@ statin <- c(statin_all, statin) %>%
   omopgenerics::newCodelist()
 
 exportCodelist(statin, path = here::here("Cohorts", "drugs"),
+               type = "csv")
+
+# GP IIb/ IIIa  -------
+gp_iib_iiia <- getDrugIngredientCodes(
+  cdm = cdm_vocab_2025_08,
+  name = c("eptifibatide", "tirofiban", "abciximab"),
+  nameStyle = "{concept_name}",
+  type = "codelist")
+names(gp_iib_iiia) <- paste0("gp_iib_iiia_", names(gp_iib_iiia))
+
+gp_iib_iiia_all <- gp_iib_iiia %>% 
+  unionCodelists()
+names(gp_iib_iiia_all) <- "gp_iib_iiia"
+
+gp_iib_iiia <- c(gp_iib_iiia_all, gp_iib_iiia) %>% 
+  omopgenerics::newCodelist()
+
+exportCodelist(gp_iib_iiia, path = here::here("Cohorts", "drugs"),
+               type = "csv")
+
+# thrombolytics -------
+thrombolytics <- getDrugIngredientCodes(
+  cdm = cdm_vocab_2025_08,
+  name = c("alteplase", "tenecteplase", 
+           "reteplase", "streptokinase"),
+  nameStyle = "{concept_name}",
+  type = "codelist")
+names(thrombolytics) <- paste0("thrombolytics_", names(thrombolytics))
+
+thrombolytics_all <- thrombolytics %>% 
+  unionCodelists()
+names(thrombolytics_all) <- "thrombolytics"
+
+thrombolytics <- c(thrombolytics_all, thrombolytics) %>% 
+  omopgenerics::newCodelist()
+
+exportCodelist(thrombolytics, path = here::here("Cohorts", "drugs"),
+               type = "csv")
+
+# Vitamin K antagonists -------
+vitamin_k_antagonists <- getDrugIngredientCodes(
+  cdm = cdm_vocab_2025_08,
+  name = c("warfarin"),
+  nameStyle = "{concept_name}",
+  type = "codelist")
+names(vitamin_k_antagonists) <- paste0("vitamin_k_antagonists_", 
+                                       names(vitamin_k_antagonists))
+
+vitamin_k_antagonists_all <- vitamin_k_antagonists %>% 
+  unionCodelists()
+names(vitamin_k_antagonists_all) <- "vitamin_k_antagonists"
+
+vitamin_k_antagonists <- c(vitamin_k_antagonists_all, vitamin_k_antagonists) %>% 
+  omopgenerics::newCodelist()
+
+exportCodelist(thrombolytics, path = here::here("Cohorts", "drugs"),
+               type = "csv")
+
+
+# Direct oral anticoagulants (DOACs) ----
+doacs <- getDrugIngredientCodes(
+  cdm = cdm_vocab_2025_08,
+  name = c("apixaban", "dabigatran", 
+           "edoxaban", "rivaroxaban"),
+  nameStyle = "{concept_name}",
+  type = "codelist")
+names(doacs) <- paste0("doacs_", 
+                       names(doacs))
+
+doacs_all <- doacs %>% 
+  unionCodelists()
+names(doacs_all) <- "doacs"
+
+doacs <- c(doacs_all, doacs) %>% 
+  omopgenerics::newCodelist()
+
+exportCodelist(doacs, path = here::here("Cohorts", "drugs"),
+               type = "csv")
+
+# Anticoagulants ----
+anticoagulants <- getDrugIngredientCodes(
+  cdm = cdm_vocab_2025_08,
+  name = c("heparin", "enoxaparin", 
+           "bivalirudin", "fondaparinux"),
+  nameStyle = "{concept_name}",
+  type = "codelist")
+names(anticoagulants) <- paste0("anticoagulants_", 
+                                names(anticoagulants))
+
+anticoagulants_all <- anticoagulants %>% 
+  unionCodelists()
+names(anticoagulants_all) <- "anticoagulants"
+
+anticoagulants <- c(anticoagulants_all, anticoagulants) %>% 
+  omopgenerics::newCodelist()
+
+exportCodelist(anticoagulants, path = here::here("Cohorts", "drugs"),
                type = "csv")
