@@ -1,4 +1,3 @@
-# create logger ----
 results_folder <- here("Results", cdmName(cdm))
 if (!file.exists(results_folder)) {
   dir.create(results_folder, recursive = TRUE)
@@ -10,14 +9,29 @@ logfile(logger) <- here(results_folder, logger_name)
 level(logger) <- "INFO"
 info(logger, "LOG CREATED")
 
+maxObsEnd <- cdm$observation_period |>
+  summarise(maxObsEnd = max(observation_period_end_date, na.rm = TRUE)) |>
+  dplyr::pull()
+
+study_period <- c(as.Date(study_start), as.Date(maxObsEnd))
+
+if(isTRUE(hospital_care)){
+  cdm <- OmopConstructor::buildObservationPeriod(
+    cdm,
+    collapseDays = 545,
+    persistenceDays = 545,
+    dateRange = study_period,
+    censorAge = 150L,
+    recordsFrom = c("visit_occurrence", "condition_occurrence", "drug_exposure")
+  )
+}
+
 cdm$person <- cdm$person |>
   filter(
     !is.na(gender_concept_id),
     !is.na(year_of_birth),
     gender_concept_id %in% c(8507,8532)
   )
-
-study_period <- c(as.Date(study_start), as.Date(NA))
 
 # create and export snapshot
 info(logger, "RETRIEVING SNAPSHOT")
@@ -31,16 +45,17 @@ cli::cli_text("- GETTING OBSERVATION PERIOD SUMMARY ({Sys.time()})")
 results[["obs_period"]] <- summariseObservationPeriod(cdm$observation_period)
 info(logger, "OBSERVATION PERIOD SUMMARY COMPLETED")
 
-# instantiate necessary cohorts ----
-info(logger, "INSTANTIATING STUDY COHORTS")
-source(here("Cohorts", "InstantiateCohorts.R"))
-info(logger, "STUDY COHORTS INSTANTIATED")
-
-# run analyses ----
-if(isTRUE(run_drug_utilisation)){
-info(logger, "RUN DRUG UTILISATION")
-source(here("Analyses", "drugUtilisation.R"))
-info(logger, "DRUG UTILISATION FINISHED")
+if(isTRUE(hospital_care)){
+  info(logger, "INSTANTIATING HOSPITAL COHORTS")
+  source(here("Cohorts", "InstantiateHospitalCohorts.R"))
+  info(logger, "HOSPITAL COHORTS INSTANTIATED")
+  
+} else if (isFALSE(hospital_care)){
+info(logger, "INSTANTIATING PRIMARY CARE COHORTS")
+source(here("Cohorts","Primary", "InstantiateOutcomeCohorts.R"))
+source(here("Cohorts","Primary", "InstantiateMIDrugCohorts.R"))
+source(here("Cohorts","Primary", "InstantiateStrokeDrugCohorts.R"))
+info(logger, "PRIMARY CARE COHORTS INSTANTIATED")
 }
 
 if(isTRUE(run_drug_adherence)){
@@ -61,8 +76,10 @@ result <- omopgenerics::bind(results)
 omopgenerics::exportSummarisedResult(result,
                                      minCellCount = min_cell_count,
                                      path = results_folder,
-                                     fileName = "results_{cdm_name}_{date}.csv"
+                                     fileName = "results_mi_{cdm_name}_{date}.csv"
 )
+
+
 info(logger, "RESULTS EXPORTED")
 
 info(logger, "STUDY CODE FINISHED")
