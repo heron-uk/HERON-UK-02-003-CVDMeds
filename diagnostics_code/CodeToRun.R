@@ -5,6 +5,7 @@
 renv::restore()
 
 # Packages
+library(omopgenerics)
 library(CDMConnector)
 library(DBI)
 library(log4r)
@@ -17,6 +18,7 @@ library(readr)
 library(tibble)
 library(RPostgres)
 library(odbc)
+library(here)
 
 # database metadata and connection details
 # The name/ acronym for the database
