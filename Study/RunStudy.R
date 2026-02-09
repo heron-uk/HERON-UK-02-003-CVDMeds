@@ -52,12 +52,11 @@ if(isTRUE(hospital_care)){
   
 } else if (isFALSE(hospital_care)){
 info(logger, "INSTANTIATING PRIMARY CARE COHORTS")
-source(here("Cohorts", "InstantiateOutcomeCohorts.R"))
-source(here("Cohorts", "InstantiateMIDrugCohorts.R"))
-source(here("Cohorts", "InstantiateStrokeDrugCohorts.R"))
+source(here("Cohorts","Primary", "InstantiateOutcomeCohorts.R"))
+source(here("Cohorts","Primary", "InstantiateMIDrugCohorts.R"))
+source(here("Cohorts","Primary", "InstantiateStrokeDrugCohorts.R"))
 info(logger, "PRIMARY CARE COHORTS INSTANTIATED")
 }
-
 
 if(isTRUE(run_drug_adherence)){
 info(logger, "RUN DRUG ADHERENCE")
