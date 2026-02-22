@@ -1,15 +1,15 @@
 # Cohort Counts + Attrition
 
-results[["cohort_count_mi"]] <- cdm$mi_drugs_final |>
+mi_results[["cohort_count_mi"]] <- cdm$mi_drugs_final |>
   summariseCohortCount()
 
-results[["cohort_count_stroke"]] <- cdm$stroke_drugs_final |>
+stroke_results[["cohort_count_stroke"]] <- cdm$stroke_drugs_final |>
   summariseCohortCount()
 
-results[["cohort_attrition_mi"]] <- cdm$mi_drugs_final |>
+mi_results[["cohort_attrition_mi"]] <- cdm$mi_drugs_final |>
   summariseCohortAttrition()
 
-results[["cohort_attrition_stroke"]] <- cdm$stroke_drugs_final |>
+stroke_results[["cohort_attrition_stroke"]] <- cdm$stroke_drugs_final |>
   summariseCohortAttrition()
 
 # Cohort Characteristics - MI
@@ -48,7 +48,7 @@ char_mi <- summariseCharacteristics(cdm$mi_drugs_chars,
                                                   c("age_group_broad", "sex")))
 
 
-results[["summmarise_characteristics_mi"]] <- char_mi
+mi_results[["summmarise_characteristics_mi"]] <- char_mi
 
 
 # Cohort Characteristics - Stroke
@@ -86,4 +86,4 @@ char_stroke <- summariseCharacteristics(cdm$stroke_drugs_chars,
                                                       c("age_group_broad", "sex")))
 
 
-results[["summmarise_characteristics_stroke"]] <- char_stroke
+stroke_results[["summmarise_characteristics_stroke"]] <- char_stroke
