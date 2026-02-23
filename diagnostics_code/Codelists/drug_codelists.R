@@ -260,3 +260,26 @@ thrombin_inhibitors <- c(thrombin_inhibitors_all, thrombin_inhibitors) |>
 
 exportCodelist(thrombin_inhibitors, path = here::here("Cohorts", "drugs"),
                type = "csv")
+
+# anticoagulants ----
+anticoagulants <- c(warfarin, doacs_all, thrombin_inhibitors_all) |> 
+  unionCodelists()
+names(anticoagulants) <- "anticoagulants"
+exportCodelist(anticoagulants, path = here::here("Cohorts", "drugs"),
+               type = "csv")
+
+# anti-dyslipidaemia  -----
+anti_dyslipidaemia <- c(statin_all, pcsk9_inhibitors_all,
+                        ezetimibe) |> 
+  unionCodelists()
+names(anti_dyslipidaemia) <- "anti_dyslipidaemia"
+exportCodelist(anti_dyslipidaemia, path = here::here("Cohorts", "drugs"),
+               type = "csv")
+
+# antihypertensive -----
+antihypertensive <- c(acei_arbs_all, beta_blockers_all,
+                        calcium_channel_blocker_all, thiazide_diuretic_all) |> 
+  unionCodelists()
+names(antihypertensive) <- "antihypertensive"
+exportCodelist(antihypertensive, path = here::here("Cohorts", "drugs"),
+               type = "csv")
