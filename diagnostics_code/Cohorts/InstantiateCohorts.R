@@ -1,10 +1,7 @@
 # Drugs -----
+omopgenerics::logMessage("-- creating drug cohorts")
 drug_codes <- omopgenerics::importCodelist(here::here("Cohorts", "drugs"), 
                                            type = "csv")
-# for diagnostics, only for high-level groups (not specific ingredients)
-drug_codes <- drug_codes[stringr::str_detect(names(drug_codes), 
-       "acei_arbs_|beta_blocker_|p2y12_inhibitors_|statin_|calcium_channel_blocker_|thiazide_diuretic_|thrombolytics_|gp_iib_iiia_|anticoagulants_|doacs_|pcsk9_inhibitors_|thrombin_inhibitors_|nitrates_", 
-                                             negate = TRUE)]
 cdm[["drugs"]] <- conceptCohort(cdm,
                                 conceptSet = drug_codes,
                                 table = "drug_exposure",
@@ -12,6 +9,7 @@ cdm[["drugs"]] <- conceptCohort(cdm,
                                 name = "drugs") 
 
 # Conditions (concept based) -----
+omopgenerics::logMessage("-- creating condition cohorts (concept based)")
 condition_codes <- omopgenerics::importCodelist(here::here("Cohorts", "conditions"), 
                                            type = "csv")
 cdm[["conditions"]] <- conceptCohort(cdm,
@@ -23,6 +21,7 @@ cdm[["conditions"]] <- cdm[["conditions"]] |>
   exitAtObservationEnd()
 
 # Obesity (based on measurement or diagnosis) -----
+omopgenerics::logMessage("-- creating obesity cohort (measurement or diagnosis)")
 obesity_diag <- list(obesity = c(
   604591, 4271317, 4171972,  4270189, 4079899,  4235799,
   4087487,  40481140, 36713437,  36678790,  45763687,  4097929,  4097996,  4182506,
@@ -64,7 +63,7 @@ cdm$obesity <- cdm$obesity |>
   exitAtObservationEnd()
 
 
-# CKD stages (based on measurement or diagnosis) ----
+omopgenerics::logMessage("-- creating ckd cohorts (measurement or diagnosis)")
 ## CKD stage from measurements
 egfr_codes <- c(
   1619025,  1619026, 3029829,  3029859, 3030104,  3045262,
@@ -150,6 +149,7 @@ cdm$ckd_stage <- cdm$ckd_stage |>
 
 
 # Procedures -----
+omopgenerics::logMessage("-- creating procedure cohorts")
 procedure_codes <- omopgenerics::importCodelist(here::here("Cohorts", "procedures"), 
                                                 type = "csv")
 cdm[["procedures"]] <- conceptCohort(cdm,
@@ -157,9 +157,7 @@ cdm[["procedures"]] <- conceptCohort(cdm,
                                      exit = "event_start_date",
                                      name = "procedures") 
 
-cdm[["procedures"]] <- cdm[["procedures"]] |> 
-  exitAtObservationEnd()
-
+cdm[["procedures"]] <- cdm[["procedures"]]
 
 # Bind  -----
 cdm <- bind(cdm[["drugs"]],
