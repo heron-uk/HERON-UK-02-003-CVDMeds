@@ -22,8 +22,6 @@ cdm[["conditions"]] <- conceptCohort(cdm,
 cdm[["conditions"]] <- cdm[["conditions"]] |> 
   exitAtObservationEnd()
 
-# Type 2 diabetes (complex) -----
-
 # Obesity (based on measurement or diagnosis) -----
 obesity_diag <- list(obesity = c(
   604591, 4271317, 4171972,  4270189, 4079899,  4235799,
@@ -165,6 +163,7 @@ cdm[["procedures"]] <- cdm[["procedures"]] |>
 # Bind  -----
 cdm <- bind(cdm[["drugs"]],
             cdm[["conditions"]],
+            cdm[["obesity"]],
             cdm[["ckd_stage"]],
             cdm[["procedures"]],
             name = "study_cohorts")
