@@ -1024,7 +1024,7 @@ ui <- fluidPage(
                                                                                 outline = TRUE)),
                                            div(style="flex: 1;", prettyCheckbox(inputId = "drug_use_by_concept",
                                                                                 label = "By concept",
-                                                                                value = TRUE,
+                                                                                value = FALSE,
                                                                                 status = "primary",
                                                                                 shape = "curve",
                                                                                 outline = TRUE))
