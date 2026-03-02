@@ -12,6 +12,13 @@ mi_results[["cohort_attrition_mi"]] <- cdm$mi_drugs_final |>
 stroke_results[["cohort_attrition_stroke"]] <- cdm$stroke_drugs_final |>
   summariseCohortAttrition()
 
+## Comorbidity Codelists
+
+comorbidities_cl <- CodelistGenerator::importCodelist(
+  path = here::here("Cohorts", "conditions"),
+  type = "csv"
+)
+
 # Cohort Characteristics - MI
 
 cdm$mi_drugs_chars <- cdm$mi_drugs_first |>
@@ -22,7 +29,8 @@ cdm$mi_drugs_chars <- cdm$mi_drugs_first |>
     futureObservation = FALSE,
     name = "mi_drugs_chars"
   ) |>
-  addSES()
+  addSES() |>
+  addEthnicity()
 
 cdm$mi_drugs_chars <- cdm$mi_drugs_chars |>
   mutate(
@@ -51,6 +59,12 @@ char_mi <- summariseCharacteristics(cdm$mi_drugs_chars,
                                         window = list(
                                           c(-30, -1)
                                         )
+                                      ),
+                                      "Prior comorbidities (-Inf, -1)" = list(
+                                        conceptSet = comorbidities_cl,
+                                        window = list(
+                                          c(-Inf, -1)
+                                        )
                                       )),
                                     strata = list("age_group_broad", "sex", "ses",
                                                   c("age_group_broad", "sex"),
@@ -58,7 +72,7 @@ char_mi <- summariseCharacteristics(cdm$mi_drugs_chars,
                                                   c("ses", "sex"),
                                                   c("age_group_broad", "sex", "ses")
                                                   ),
-                                    otherVariables = "ses")
+                                    otherVariables = c("ses", "ethnicity"))
 
 
 mi_results[["summmarise_characteristics_mi"]] <- char_mi
@@ -94,7 +108,14 @@ char_stroke <- summariseCharacteristics(cdm$stroke_drugs_chars,
                                             window = list(
                                               c(-30, -1)
                                             )
-                                          )),
+                                            ),
+                                            "Prior comorbidities (-Inf, -1)" = list(
+                                              conceptSet = comorbidities_cl,
+                                              window = list(
+                                                c(-Inf, -1)
+                                              )
+                                            )
+                                          ),
                                         strata = list("age_group_broad", "sex",
                                                       c("age_group_broad", "sex")))
 
