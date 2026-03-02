@@ -2,7 +2,7 @@
 
 info(logger, "INSTANTIATING STROKE DRUGS COHORT")
 
-stroke_drugs_cl <- importCodelist(here("Cohorts", "Primary", "stroke_drugs"), type = "csv")
+stroke_drugs_cl <- importCodelist(here("Cohorts", "Primary", "drugs"), type = "csv")
 
 names(stroke_drugs_cl) <- paste0(names(stroke_drugs_cl), "_stroke")
 
