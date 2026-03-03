@@ -123,38 +123,46 @@ library(dplyr)
 library(tidyr)
 library(ggplot2)
 
-msdata <- x |>
-  filter(cohort_name == "p2y12_inhibitors_stroke")
+cohorts <- unique(x$cohort_name)
 
-cox_mod <- coxph(
-  Surv(Tstart, Tstop, status) ~ strata(trans) + cluster(subject_id),
-  data = msdata
-)
-
-msf <- msfit(cox_mod, trans = tmat) 
-
-pt_list <- probtrans(msf, predt = 0)
-
-xp <- pt_list[[1]] |>
-  as_tibble() |>
-  select(time, pstate1, pstate2, pstate3) |>
-  pivot_longer(starts_with("pstate"), names_to = "state", values_to = "prob") |>
-  mutate(state = recode(state, pstate1 = "Treated", pstate2 = "Discontinued", pstate3 = "Death"))
-
-xp <- xp |>
-  mutate(step = 1) |>
-  union_all(
-    xp |>
-      group_by(state) |>
-      mutate(time = lead(time), step = -1) |>
-      ungroup()
-  ) |>
-  arrange(time, state, step)
-
-ggplot(xp, aes(x = time, y = prob, fill = state)) +
-  geom_area() +
-  xlim(c(0, 5*365)) +
-  labs(x = "Time",
-       y = "Probability",
-       fill = "State") +
-  theme_minimal()
+for (coh in cohorts) {
+  msdata <- x |>
+    filter(cohort_name == "p2y12_inhibitors_stroke")
+  
+  cox_mod <- coxph(
+    Surv(Tstart, Tstop, status) ~ strata(trans) + cluster(subject_id),
+    data = msdata
+  )
+  
+  msf <- msfit(cox_mod, trans = tmat) 
+  
+  pt_list <- probtrans(msf, predt = 0)
+  
+  xp <- pt_list[[1]] |>
+    as_tibble() |>
+    select(time, pstate1, pstate2, pstate3) |>
+    pivot_longer(starts_with("pstate"), names_to = "state", values_to = "prob") |>
+    mutate(state = recode(state, pstate1 = "Treated", pstate2 = "Discontinued", pstate3 = "Death"))
+  
+  xp <- xp |>
+    mutate(step = 1) |>
+    union_all(
+      xp |>
+        group_by(state) |>
+        mutate(time = lead(time), step = -1) |>
+        ungroup()
+    ) |>
+    arrange(time, state, step)
+  
+  p <- ggplot(xp, aes(x = time, y = prob, fill = state)) +
+    geom_area(colour = "black") +
+    xlim(c(0, 5*365)) +
+    labs(x = "Time", y = "Probability", fill = "State") +
+    theme_minimal() +
+    scale_fill_manual(values = c(Treated = "#3B5B92",
+                                 Discontinued = "#8AA1B1",
+                                 Death = "#BC3C29")) +
+    ggtitle(label = coh)
+  
+  ggsave(filename = here::here("Results", paste0(coh, ".png")), plot = p)
+}
