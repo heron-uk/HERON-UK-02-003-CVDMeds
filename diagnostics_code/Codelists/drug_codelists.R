@@ -201,8 +201,8 @@ exportCodelist(antihypertensive, path = here::here("Cohorts", "drugs"),
 
 # antiplatelet -----
 antiplatelet <- c(aspirin, dipyridamole,
-                  dipyridamole) |> 
+                  p2y12_inhibitors) |> 
   unionCodelists()
-names(antihypertensive) <- "antihypertensive"
-exportCodelist(antihypertensive, path = here::here("Cohorts", "drugs"),
+names(antiplatelet) <- "antiplatelet"
+exportCodelist(antiplatelet, path = here::here("Cohorts", "drugs"),
                type = "csv")
