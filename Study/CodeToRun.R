@@ -23,6 +23,10 @@ library(RPostgres)
 library(odbc)
 library(OmopConstructor)
 library(CohortSurvival)
+library(PatientProfiles)
+library(clock)
+library(survival)
+library(mstate)
 
 #database metadata and connection details
 #The name/ acronym for the database
