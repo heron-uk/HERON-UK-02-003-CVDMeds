@@ -15,17 +15,6 @@ maxObsEnd <- cdm$observation_period |>
 
 study_period <- c(as.Date(study_start), as.Date(maxObsEnd))
 
-if(isTRUE(hospital_care) & isFALSE(primary_care)){
-  cdm <- OmopConstructor::buildObservationPeriod(
-    cdm,
-    collapseDays = 545,
-    persistenceDays = 545,
-    dateRange = study_period,
-    censorAge = 150L,
-    recordsFrom = c("visit_occurrence", "condition_occurrence", "drug_exposure")
-  )
-}
-
 cdm$person <- cdm$person |>
   filter(
     !is.na(gender_concept_id),
@@ -70,9 +59,12 @@ results[["observation_period"]] <- obs
 
 info(logger, "OBSERVATION PERIOD SUMMARY COMPLETED")
 
+info(logger, "INSTANTIATING OUTCOME COHORTS")
+source(here("Cohorts","InstantiateOutcomeCohorts.R"))
+info(logger, "INSTANTIATED OUTCOME COHORTS")
+
 if(isTRUE(hospital_care)){
   info(logger, "INSTANTIATING HOSPITAL COHORTS")
-  source(here("Cohorts","InstantiateOutcomeCohorts.R"))
   source(here("Cohorts", "InstantiateHospitalCohorts.R"))
   info(logger, "HOSPITAL COHORTS INSTANTIATED")
   
@@ -80,7 +72,6 @@ if(isTRUE(hospital_care)){
 
 if(isTRUE(primary_care)){
 info(logger, "INSTANTIATING PRIMARY CARE COHORTS")
-source(here("Cohorts", "InstantiateOutcomeCohorts.R"))
 source(here("Cohorts","Primary", "InstantiateMIDrugCohorts.R"))
 source(here("Cohorts","Primary", "InstantiateStrokeDrugCohorts.R"))
 info(logger, "PRIMARY CARE COHORTS INSTANTIATED")
