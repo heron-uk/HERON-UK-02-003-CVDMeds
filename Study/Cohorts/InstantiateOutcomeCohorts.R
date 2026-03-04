@@ -1,4 +1,4 @@
-# Create Acute MI Cohort
+# Create outcome cohorts
 info(logger, "INSTANTIATING MI COHORT")
 
 acute_mi_cl <- CodelistGenerator::importCodelist(

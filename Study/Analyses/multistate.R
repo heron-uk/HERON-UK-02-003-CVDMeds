@@ -4,33 +4,65 @@ mi_drugs_count <- cdm$mi_drugs_final |>
   group_by(cohort_definition_id) |>
   distinct(subject_id) |>
   tally() |>
-  filter(n >= 100) |>
+  filter(n >= 1) |>
   pull(cohort_definition_id)
 
 cdm$mi_drugs_msm <- cdm$mi_drugs_final |>
   subsetCohorts(
     cohortId = mi_drugs_count,
     name = "mi_drugs_msm"
-  )
+  )  |>
+  addDemographics(
+    sex = TRUE,
+    age = FALSE,
+    priorObservation = FALSE,
+    futureObservation = FALSE,
+    name = "mi_drugs_msm",
+    ageGroup = list(
+      "18 to 39" = c(18, 39),
+      "40 to 49" = c(40, 49),
+      "50 to 59" = c(50, 59),
+      "60 to 69" = c(60, 69),
+      "70 to 79" = c(70, 79),
+      "80 to 89" = c(80, 89),
+      "90+" = c(90, 150))
+  ) |>
+  addSES()
 
 stroke_drugs_count <- cdm$stroke_drugs_final |>
   collect() |>
   group_by(cohort_definition_id) |>
   distinct(subject_id) |>
   tally() |>
-  filter(n >= 100) |>
+  filter(n >= 1) |>
   pull(cohort_definition_id)
 
 cdm$stroke_drugs_msm <- cdm$stroke_drugs_final |>
   subsetCohorts(
     cohortId = stroke_drugs_count,
     name = "stroke_drugs_msm"
-  )
+  ) |>
+  addDemographics(
+    sex = TRUE,
+    age = FALSE,
+    priorObservation = FALSE,
+    futureObservation = FALSE,
+    name = "mi_drugs_msm",
+    ageGroup = list(
+      "18 to 39" = c(18, 39),
+      "40 to 49" = c(40, 49),
+      "50 to 59" = c(50, 59),
+      "60 to 69" = c(60, 69),
+      "70 to 79" = c(70, 79),
+      "80 to 89" = c(80, 89),
+      "90+" = c(90, 150))
+  ) |>
+  addSES()
 
 nm_1 <- omopgenerics::uniqueTableName()
 xd_1 <- cdm$mi_drugs_msm |>
   addCohortName() |>
-  group_by(cohort_name, subject_id) |>
+  group_by(cohort_name, subject_id, age_group, sex, ses) |>
   mutate(t0 = min(cohort_start_date, na.rm = TRUE)) |>
   ungroup() |>
   mutate(
@@ -42,7 +74,7 @@ xd_1 <- cdm$mi_drugs_msm |>
   addFutureObservation(indexDate = "t0", futureObservationType = "days", name = nm_1) |>
   addCohortIntersectDays(indexDate = "t0", targetCohortTable = "acute_mi_second", window = c(-Inf,Inf)) |>
   rename(second_event = acute_mi_minf_to_inf) |>
-  select("cohort_name", "subject_id", "start_drug", "start_discontinuation", "days_to_death", "future_observation", "second_event") |>
+  select("cohort_name", "subject_id", "age_group", "sex", "ses", "start_drug", "start_discontinuation", "days_to_death", "future_observation", "second_event") |>
   collect() |>
   mutate(
     days_to_death = coalesce(days_to_death, 9999L),
@@ -56,7 +88,7 @@ xd_1 <- cdm$mi_drugs_msm |>
 nm_2 <- omopgenerics::uniqueTableName()
 xd_2 <- cdm$stroke_drugs_msm |>
   addCohortName() |>
-  group_by(cohort_name, subject_id) |>
+  group_by(cohort_name, subject_id, age_group, sex, ses) |>
   mutate(t0 = min(cohort_start_date, na.rm = TRUE)) |>
   ungroup() |>
   mutate(
@@ -68,7 +100,7 @@ xd_2 <- cdm$stroke_drugs_msm |>
   addFutureObservation(indexDate = "t0", futureObservationType = "days", name = nm_2) |>
   addCohortIntersectDays(indexDate = "t0", targetCohortTable = "stroke_second", window = c(-Inf,Inf)) |>
   rename(second_event = ischemic_stroke_minf_to_inf) |>
-  select("cohort_name", "subject_id", "start_drug", "start_discontinuation", "days_to_death", "future_observation", "second_event") |>
+  select("cohort_name", "subject_id", "age_group", "sex", "ses", "start_drug", "start_discontinuation", "days_to_death", "future_observation", "second_event") |>
   collect() |>
   mutate(
     days_to_death = coalesce(days_to_death, 9999L),
@@ -109,7 +141,7 @@ transitionsTreated <- xd |>
       transition == "discontinue" ~ start_discontinuation
     )
   ) |>
-  select("cohort_name", "subject_id", "Tstart", "Tstop", "transition")
+  select("cohort_name", "subject_id", "age_group", "sex", "ses",  "Tstart", "Tstop", "transition")
 
 # prepare transitions from untreated
 transitionsUntreated <- xd |>
@@ -130,7 +162,7 @@ transitionsUntreated <- xd |>
       transition == "restart" ~ start_drug
     )
   ) |>
-  select("cohort_name", "subject_id", "Tstart", "Tstop", "transition")
+  select("cohort_name", "subject_id", "age_group", "sex", "ses", "Tstart", "Tstop", "transition")
 
 # treated to untreated
 x <- transitionsTreated |>
@@ -140,7 +172,7 @@ x <- transitionsTreated |>
     trans = 1L,
     status = if_else(transition == "discontinue", 1, 0)
   ) |>
-  select("cohort_name", "subject_id", "from", "to", "trans", "Tstart", "Tstop", "status") |>
+  select("cohort_name", "subject_id", "age_group", "sex", "ses", "from", "to", "trans", "Tstart", "Tstop", "status") |>
   # treated to death
   union_all(
     transitionsTreated |>
@@ -150,7 +182,7 @@ x <- transitionsTreated |>
         trans = 3L,
         status = if_else(transition == "death", 1, 0)
       ) |>
-      select("cohort_name", "subject_id", "from", "to", "trans", "Tstart", "Tstop", "status")
+      select("cohort_name", "subject_id","age_group", "sex", "ses", "from", "to", "trans", "Tstart", "Tstop", "status")
   ) |>
   # untreated to treated
   union_all(
@@ -161,7 +193,7 @@ x <- transitionsTreated |>
         trans = 2L,
         status = if_else(transition == "restart", 1, 0)
       ) |>
-      select("cohort_name", "subject_id", "from", "to", "trans", "Tstart", "Tstop", "status")
+      select("cohort_name", "subject_id","age_group", "sex", "ses", "from", "to", "trans", "Tstart", "Tstop", "status")
   ) |>
   # untreated to death
   union_all(
@@ -172,7 +204,7 @@ x <- transitionsTreated |>
         trans = 4L,
         status = if_else(transition == "death", 1, 0)
       ) |>
-      select("cohort_name", "subject_id", "from", "to", "trans", "Tstart", "Tstop", "status")
+      select("cohort_name", "subject_id","age_group", "sex", "ses", "from", "to", "trans", "Tstart", "Tstop", "status")
   )
 
 cohorts <- unique(x$cohort_name)
@@ -196,25 +228,18 @@ for (coh in cohorts) {
     as_tibble() |>
     select(time, pstate1, pstate2, pstate3) |>
     pivot_longer(starts_with("pstate"), names_to = "state", values_to = "probability") |>
-    mutate(state = recode(state, pstate1 = "Treated", pstate2 = "Discontinued", pstate3 = "Death"))
-  
-  xp <- xp |>
-    mutate(step = 1) |>
-    union_all(
-      xp |>
-        group_by(state) |>
-        mutate(time = lead(time), step = -1) |>
-        ungroup()
-    ) |>
-    arrange(time, state, step) |>
-    mutate(cohort_name = coh) |>
+    mutate(state = recode(state, pstate1 = "Treated", pstate2 = "Discontinued", pstate3 = "Death"))|>
+    arrange(time, state) |>
+    mutate(cohort_name = coh,
+           result_type = "mms_probabilities") |>
     filter(time <= 1830)
 
   sum_xp <- omopgenerics::transformToSummarisedResult(
     x = xp,
     group = c("cohort_name"),
     estimates = c("probability"),
-    additional = c("time", "state", "step")
+    additional = c("time", "state"),
+    settings = c("result_type")
   ) |>
     mutate(cdm_name = db_name)
   
