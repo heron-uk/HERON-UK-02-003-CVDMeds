@@ -5,7 +5,9 @@ resultList <- list(
   cohort_code_use = list(result_type = "cohort_code_use"),
   summarise_cohort_count = list(result_type = "summarise_cohort_count"),
   summarise_cohort_attrition = list(result_type = "summarise_cohort_attrition"),
-  summarise_characteristics = list(result_type = "summarise_characteristics")
+  summarise_demographics = list(result_type = "summarise_characteristics", variable_name = c("Number records", "Number subjects", "Cohort start date", "Cohort end date", "Ses", "Ethnicity", "Age", "Age group", "Sex", "Prior observation", "Future observation", "Days in cohort", "Days to next record", "Prior ischemic stroke (-30 to -1)", "Prior mi (-30 to -1)")),
+  summarise_treatments = list(result_type = "summarise_characteristics", variable_name = "Drug treatment (0, 14)"),
+  summarise_procedures = list(result_type = "summarise_characteristics", variable_name = "Procedures (0, 14)")
 )
 
 source(file.path(getwd(), "functions.R"))

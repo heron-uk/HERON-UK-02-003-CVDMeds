@@ -7,11 +7,17 @@ color:
     grey225: '#e1e1e1'
     grey37: '#252525'
     black: '#000000'
-  background: white
+  background: '#ffffff'
+logo:
+  path: ohdsi
+  alt: ~
 typography:
   base:
     family: Arial
-    size: '11px'
+    size: 11pt
+  fonts:
+  - family: Arial
+    source: system
 defaults:
   shiny:
     theme:
@@ -70,3 +76,4 @@ defaults:
       body:
         background_color: transparent
         border_color: grey200
+path: C:/Users/marti/AppData/Local/R/win-library/4.5/visOmopResults/brand/default.yml
