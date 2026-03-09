@@ -8,12 +8,10 @@ color:
     grey37: '#252525'
     black: '#000000'
   background: white
-logo:
-  path: ohdsi
 typography:
   base:
     family: Arial
-    size: '11'
+    size: '11px'
 defaults:
   shiny:
     theme:

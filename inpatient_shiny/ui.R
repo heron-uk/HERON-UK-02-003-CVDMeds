@@ -4,7 +4,7 @@
 ui <- bslib::page_navbar(
   title = shiny::tags$span(
     shiny::tags$img(
-      src = "ohdsi_logo.svg",
+      src = "hdruk_logo.png",
       width = "auto",
       height = "46px",
       class = "me-3",
@@ -374,7 +374,7 @@ ui <- bslib::page_navbar(
     )
   ),
   bslib::nav_menu(
-    title = "CohortCharacteristics",
+    title = "Cohort Demographics",
     icon = shiny::icon("list"),
     bslib::nav_panel(
       title = "Cohort Count",
