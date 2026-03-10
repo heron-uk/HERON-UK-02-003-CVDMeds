@@ -358,18 +358,31 @@ server <- function(input, output, session) {
   # summarise_procedures -----
   ## get summarise_procedures data
   getSummariseProceduresData <- shiny::reactive({
-    data[["summarise_procedures"]] |>
+    x <- data[["summarise_procedures"]] |>
       dplyr::filter(
         .data$cdm_name %in% input$summarise_procedures_cdm_name,
         .data$variable_name %in% input$summarise_procedures_variable_name,
         .data$estimate_name %in% input$summarise_procedures_estimate_name
       ) |>
-      omopgenerics::filterGroup(.data$cohort_name %in% input$summarise_procedures_cohort_name) |>
-      omopgenerics::filterStrata(
-        .data$age_group %in% input$summarise_procedures_age_group,
-        .data$sex %in% input$summarise_procedures_sex,
-        .data$ses %in% input$summarise_procedures_ses
-      )
+      omopgenerics::filterGroup(.data$cohort_name %in% input$summarise_procedures_cohort_name)
+    inx <- input$summarise_treatments_strata
+    if (!"overall" %in% inx) {
+      x <- x |>
+        omopgenerics::filterStrata(strata != "overall")
+    }
+    if (!"age_group" %in% inx) {
+      x <- x |>
+        omopgenerics::filterStrata(!grepl("Age", strata))
+    }
+    if (!"sex" %in% inx) {
+      x <- x |>
+        omopgenerics::filterStrata(!grepl("SES", strata))
+    }
+    if (!"ses" %in% inx) {
+      x <- x |>
+        omopgenerics::filterStrata(!grepl("Sex", strata))
+    }
+    x
   })
   getSummariseProceduresTable <- shiny::reactive({
     getSummariseProceduresData() |>
@@ -389,12 +402,16 @@ server <- function(input, output, session) {
     }
   )
   getSummariseProceduresPlot <- shiny::reactive({
-    getSummariseProceduresData() |>
-      CohortCharacteristics::plotCharacteristics(
-        plotType = input$summarise_procedures_plot_plot_type,
-        facet = input$summarise_procedures_plot_facet,
-        colour = input$summarise_procedures_plot_colour
-      )
+    x <- getSummariseProceduresData() |>
+      omopgenerics::tidy()
+    visOmopResults::barPlot(
+      result = x,
+      x = "variable_level",
+      y = "percentage",
+      facet = input$summarise_treatments_plot_facet,
+      colour = input$summarise_treatments_plot_colour
+    ) +
+      ggplot2::coord_flip()
   })
   output$summarise_procedures_plot <- shiny::renderUI({
     x <- getSummariseProceduresPlot()

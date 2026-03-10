@@ -910,26 +910,10 @@ ui <- bslib::page_navbar(
             options = list(`actions-box` = TRUE, size = 10, `selected-text-format` = "count > 3")
           ),
           shinyWidgets::pickerInput(
-            inputId = "summarise_procedures_age_group",
-            label = "Age group",
-            choices = choices$summarise_procedures_age_group,
-            selected = selected$summarise_procedures_age_group,
-            multiple = TRUE,
-            options = list(`actions-box` = TRUE, size = 10, `selected-text-format` = "count > 3")
-          ),
-          shinyWidgets::pickerInput(
-            inputId = "summarise_procedures_sex",
-            label = "Sex",
-            choices = choices$summarise_procedures_sex,
-            selected = selected$summarise_procedures_sex,
-            multiple = TRUE,
-            options = list(`actions-box` = TRUE, size = 10, `selected-text-format` = "count > 3")
-          ),
-          shinyWidgets::pickerInput(
-            inputId = "summarise_procedures_ses",
-            label = "Ses",
-            choices = choices$summarise_procedures_ses,
-            selected = selected$summarise_procedures_ses,
+            inputId = "summarise_procedures_strata",
+            label = "Strata",
+            choices = c("overall", "age_group", "ses", "sex"),
+            selected = "overall",
             multiple = TRUE,
             options = list(`actions-box` = TRUE, size = 10, `selected-text-format` = "count > 3")
           ),
@@ -1043,14 +1027,6 @@ ui <- bslib::page_navbar(
                     inputId = "summarise_procedures_plot_interactive",
                     label = "Interactive",
                     value = TRUE
-                  ),
-                  shinyWidgets::pickerInput(
-                    inputId = "summarise_procedures_plot_plot_type",
-                    label = "Plot type",
-                    choices = c("boxplot", "barplot", "scatterplot"),
-                    selected = "boxplot",
-                    multiple = FALSE,
-                    options = list(`actions-box` = TRUE, size = 10, `selected-text-format` = "count > 3")
                   ),
                   shinyWidgets::pickerInput(
                     inputId = "summarise_procedures_plot_facet",
