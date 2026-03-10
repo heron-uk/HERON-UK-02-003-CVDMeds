@@ -42,10 +42,7 @@ knitr::opts_chunk$set(
 
 setGlobalPlotOptions(type = "ggplot")
 setGlobalTableOptions(type = "flextable")
-
-# Calibri font in ggplot figures (requires the extrafont package to be available)
-# Read vignette on styles to learn more
-requireExtrafont()
+tt <- "flextable"
 ```
 
 ## Database metadata
@@ -55,5 +52,81 @@ requireExtrafont()
 :::
 
 ```{r}
-OmopSketch::tableOmopSnapshot(data[["summarise_omop_snapshot"]])
+OmopSketch::tableOmopSnapshot(data[["summarise_omop_snapshot"]], type = tt)
 ```
+
+## Demographics characterisation myocardial infarction
+
+:::{custom-style="Caption"}
+**Table 2:** Demographics characterisation at first record of Myocardial infarction.
+:::
+
+```{r}
+arrangeCharacteristics <- function(x) {
+  x |>
+    dplyr::mutate(order_id = dplyr::case_when(
+      variable_name == "Number records" ~ 1L,
+      variable_name == "Number subjects" ~ 2L,
+      variable_name == "Cohort start date" ~ 3L,
+      variable_name == "Cohort end date" ~ 4L,
+      variable_name == "Sex" ~ 5L,
+      variable_name == "Age" ~ 6L,
+      variable_name == "Age group" ~ 7L,
+      variable_name == "Ethnicity" ~ 8L,
+      variable_name == "Ses" ~ 9L,
+      variable_name == "Prior observation" ~ 10L,
+      variable_name == "Future observation" ~ 11L,
+      variable_name == "Days in cohort" ~ 12L,
+      variable_name == "Days to next record" ~ 13L,
+      variable_name == "Prior ischemic stroke (-30 to -1)" ~ 14L,
+      variable_name == "Prior mi (-30 to -1)" ~ 15L,
+      variable_name == "Drug treatment (0, 14)" ~ 16L,
+      variable_name == "Procedures (0, 14)" ~ 17L,
+    )) |>
+    dplyr::arrange(order_id, variable_level) |>
+    dplyr::select(!"order_id")
+}
+data$summarise_demographics |>
+  arrangeCharacteristics() |>
+  omopgenerics::filterGroup(cohort_name == "acute_mi") |>
+  omopgenerics::filterStrata(strata == "overall") |>
+  CohortCharacteristics::tableCharacteristics(
+    hide = c("strata", "cohort_name", "table_name"),
+    header = "cdm_name",
+    type = tt
+  )
+```
+
+### Compare sex
+
+```{r, results='asis'}
+xx <- data$summarise_demographics |>
+  arrangeCharacteristics() |>
+  omopgenerics::filterGroup(cohort_name == "acute_mi") |>
+  omopgenerics::filterStrata(grepl("sex", strata, ignore.case = TRUE))
+cns <- unique(xx$cdm_name)
+tbl <- list()
+for (cn in cns) {
+  tbl <- xx |>
+    dplyr::filter(cdm_name == cn) |>
+    CohortCharacteristics::tableCharacteristics(
+      hide = c("cohort_name", "table_name", "cdm_name"),
+      header = c("strata"),
+      type = tt
+    )
+  
+  cat(knitr::knit_child(quiet = TRUE, text = c(
+    paste0("#### ", cn),
+    "",
+    "```{r}",
+    "#| echo: false",
+    "tbl",
+    "```"
+  )), sep = "\n")
+}
+```
+
+
+### Compare age groups
+
+### Compare Socioeconomic status

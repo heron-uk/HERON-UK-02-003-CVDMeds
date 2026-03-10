@@ -550,26 +550,10 @@ ui <- bslib::page_navbar(
             options = list(`actions-box` = TRUE, size = 10, `selected-text-format` = "count > 3")
           ),
           shinyWidgets::pickerInput(
-            inputId = "summarise_demographics_age_group",
-            label = "Age group",
-            choices = choices$summarise_demographics_age_group,
-            selected = selected$summarise_demographics_age_group,
-            multiple = TRUE,
-            options = list(`actions-box` = TRUE, size = 10, `selected-text-format` = "count > 3")
-          ),
-          shinyWidgets::pickerInput(
-            inputId = "summarise_demographics_sex",
-            label = "Sex",
-            choices = choices$summarise_demographics_sex,
-            selected = selected$summarise_demographics_sex,
-            multiple = TRUE,
-            options = list(`actions-box` = TRUE, size = 10, `selected-text-format` = "count > 3")
-          ),
-          shinyWidgets::pickerInput(
-            inputId = "summarise_demographics_ses",
-            label = "Ses",
-            choices = choices$summarise_demographics_ses,
-            selected = selected$summarise_demographics_ses,
+            inputId = "summarise_demographics_strata",
+            label = "Strata",
+            choices = choices$summarise_demographics_strata,
+            selected = selected$summarise_demographics_strata,
             multiple = TRUE,
             options = list(`actions-box` = TRUE, size = 10, `selected-text-format` = "count > 3")
           ),
@@ -617,7 +601,7 @@ ui <- bslib::page_navbar(
                     header = NULL,
                     sortable::add_rank_list(
                       text = "None",
-                      labels = c("age_group", "sex", "ses", "variable_name", "variable_level", "estimate_name"),
+                      labels = c("strata", "variable_name", "variable_level", "estimate_name"),
                       input_id = "summarise_demographics_table_none"
                     ),
                     sortable::add_rank_list(

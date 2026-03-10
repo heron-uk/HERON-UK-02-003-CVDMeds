@@ -8,9 +8,6 @@ color:
     grey37: '#252525'
     black: '#000000'
   background: '#ffffff'
-logo:
-  path: ohdsi
-  alt: ~
 typography:
   base:
     family: Arial
@@ -76,4 +73,3 @@ defaults:
       body:
         background_color: transparent
         border_color: grey200
-path: C:/Users/marti/AppData/Local/R/win-library/4.5/visOmopResults/brand/default.yml

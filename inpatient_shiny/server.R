@@ -231,9 +231,7 @@ server <- function(input, output, session) {
       ) |>
       omopgenerics::filterGroup(.data$cohort_name %in% input$summarise_demographics_cohort_name) |>
       omopgenerics::filterStrata(
-        .data$age_group %in% input$summarise_demographics_age_group,
-        .data$sex %in% input$summarise_demographics_sex,
-        .data$ses %in% input$summarise_demographics_ses
+        .data$strata %in% input$summarise_demographics_strata
       )
   })
   getSummariseDemographicsTable <- shiny::reactive({
