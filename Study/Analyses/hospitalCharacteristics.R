@@ -198,3 +198,229 @@ char_stroke <- summariseCharacteristics(cdm$stroke_inpatient_chars,
                                         otherVariables = c("ses", "ethnicity"))
 
 results[["summmarise_characteristics_stroke"]] <- char_stroke
+
+# timing between admission fro Stroke and medication/procedures
+nm <- omopgenerics::uniqueTableName()
+strokeAdmission <- cdm$visit_occurrence |>
+  dplyr::inner_join(
+    cdm$stroke_inpatient |>
+      dplyr::select(
+        "person_id" = "subject_id", "visit_start_date" = "cohort_start_date",
+        "stroke_date"
+      ),
+    by = c("person_id", "visit_start_date")
+  ) |>
+  dplyr::filter(
+    .data$visit_concept_id %in% c(9201, 262, 9203) &
+      .data$visit_start_date <= .data$stroke_date &
+      .data$visit_end_date >= .data$stroke_date
+  ) |>
+  dplyr::select(
+    "person_id", "visit_start_datetime", "admitted_from_concept_id",
+    "discharged_to_concept_id", "visit_end_date"
+  ) |>
+  dplyr::collect()
+  
+codes <- drugs_cl[c("thrombolytics_alteplase", "thrombolytics_tenecteplase")] |>
+  dplyr::as_tibble() |>
+  dplyr::rename("drug" = "codelist_name", "drug_concept_id" = "concept_id")
+
+nm <- omopgenerics::uniqueTableName()
+cdm <- omopgenerics::insertTable(cdm = cdm, name = nm, table = codes)
+
+drugOfInterest <- cdm$drug_exposure |>
+  dplyr::select("person_id", "drug_concept_id", "drug_exposure_start_date",
+                "drug_exposure_start_datetime") |>
+  collect() |>
+  dplyr::inner_join(codes, by = "drug_concept_id") |>
+  dplyr::inner_join(
+    strokeAdmission |>
+      dplyr::select("person_id", "visit_start_datetime", "visit_end_date"),
+    by = "person_id"
+  ) |>
+  dplyr::filter(
+    drug_exposure_start_date <= visit_end_date &
+      visit_start_datetime <= drug_exposure_start_datetime
+  ) |>
+  dplyr::group_by(person_id, drug) |>
+  dplyr::summarise(drug_exposure_start_datetime = min(drug_exposure_start_datetime)) |>
+  tidyr::pivot_wider(
+    names_from = "drug",
+    values_from = "drug_exposure_start_datetime"
+  )
+
+codes <- stroke_proc |>
+  dplyr::as_tibble() |>
+  dplyr::rename("procedure" = "codelist_name", "procedure_concept_id" = "concept_id")
+nm <- omopgenerics::uniqueTableName()
+cdm <- omopgenerics::insertTable(cdm = cdm, name = nm, table = codes)
+
+proceduresOfInterest <- cdm$procedure_occurrence |>
+  dplyr::select("person_id", "procedure_concept_id", "procedure_date",
+                "procedure_datetime") |>
+  collect() |>
+  dplyr::inner_join(codes, by = "procedure_concept_id") |>
+  dplyr::inner_join(
+    strokeAdmission |>
+      dplyr::select("person_id", "visit_start_datetime", "visit_end_date"),
+    by = "person_id"
+  ) |>
+  dplyr::filter(
+    procedure_date <= visit_end_date &
+      visit_start_datetime <= procedure_datetime
+  ) |>
+  dplyr::group_by(person_id, procedure) |>
+  dplyr::summarise(procedure_datetime = min(procedure_datetime)) |>
+  tidyr::pivot_wider(
+    names_from = "procedure",
+    values_from = "procedure_datetime"
+  )
+
+x <- strokeAdmission |>
+  dplyr::select(
+    "person_id", "visit_start_datetime", "admitted_from_concept_id",
+    "discharged_to_concept_id"
+  ) |>
+  dplyr::inner_join(drugOfInterest, by = "person_id") |>
+  dplyr::inner_join(proceduresOfInterest, by = "person_id")
+
+cols <- c(names(stroke_proc), "thrombolytics_alteplase", "thrombolytics_tenecteplase")
+for (col in cols) {
+  if (col %in% colnames(x)) {
+    x[[col]] <- as.numeric(difftime(time1 = x[[col]], time2 = x$visit_start_datetime, units = "mins"))
+  } else {
+    x[[col]] <- as.numeric(NA)
+  }
+}
+
+x$admitting_source_concept_id <- sprintf("%i", x$admitted_from_concept_id)
+x$discharge_to_concept_id <- sprintf("%i", x$discharged_to_concept_id)
+x$cohort_name <- "stroke"
+
+results$extra_stroke <- PatientProfiles::summariseResult(
+  table = x,
+  group = "cohort_name", 
+  variables = list(
+    c("discharge_to_concept_id", "admitting_source_concept_id"),
+    cols
+  ),
+  estimates = list(
+    c("count", "percentage"),
+    c("percentage_missing", "count_missing", "min", "max", "q05", "q25", 
+      "median", "q75", "q95")
+  )
+)
+
+# timing between admission from MI and medication/procedures
+nm <- omopgenerics::uniqueTableName()
+miAdmission <- cdm$visit_occurrence |>
+  dplyr::inner_join(
+    cdm$mi_inpatient |>
+      dplyr::select(
+        "person_id" = "subject_id", "visit_start_date" = "cohort_start_date",
+        "mi_date"
+      ),
+    by = c("person_id", "visit_start_date")
+  ) |>
+  dplyr::filter(
+    .data$visit_concept_id %in% c(9201, 262, 9203) &
+      .data$visit_start_date <= .data$mi_date &
+      .data$visit_end_date >= .data$mi_date
+  ) |>
+  dplyr::select(
+    "person_id", "visit_start_datetime", "admitted_from_concept_id",
+    "discharged_to_concept_id", "visit_end_date"
+  ) |>
+  dplyr::collect()
+
+codes <- drugs_cl[c("thrombolytics_alteplase", "thrombolytics_tenecteplase")] |>
+  dplyr::as_tibble() |>
+  dplyr::rename("drug" = "codelist_name", "drug_concept_id" = "concept_id")
+nm <- omopgenerics::uniqueTableName()
+cdm <- omopgenerics::insertTable(cdm = cdm, name = nm, table = codes)
+
+drugOfInterest <- cdm$drug_exposure |>
+  dplyr::select("person_id", "drug_concept_id", "drug_exposure_start_date",
+                "drug_exposure_start_datetime") |>
+  dplyr::collect() |>
+  dplyr::inner_join(codes, by = "drug_concept_id") |>
+  dplyr::inner_join(
+    miAdmission |>
+      dplyr::select("person_id", "visit_start_datetime", "visit_end_date"),
+    by = "person_id"
+  ) |>
+  dplyr::filter(
+    drug_exposure_start_date <= visit_end_date &
+      visit_start_datetime <= drug_exposure_start_datetime
+  ) |>
+  dplyr::compute() |>
+  dplyr::group_by(person_id, drug) |>
+  dplyr::summarise(drug_exposure_start_datetime = min(drug_exposure_start_datetime)) |>
+  dplyr::collect() |>
+  tidyr::pivot_wider(
+    names_from = "drug",
+    values_from = "drug_exposure_start_datetime"
+  )
+
+codes <- mi_proc |>
+  dplyr::as_tibble() |>
+  dplyr::rename("procedure" = "codelist_name", "procedure_concept_id" = "concept_id")
+nm <- omopgenerics::uniqueTableName()
+cdm <- omopgenerics::insertTable(cdm = cdm, name = nm, table = codes)
+
+proceduresOfInterest <- cdm$procedure_occurrence |>
+  dplyr::select("person_id", "procedure_concept_id", "procedure_date",
+                "procedure_datetime") |>
+  dplyr::collect() |>
+  dplyr::inner_join(codes, by = "procedure_concept_id") |>
+  dplyr::inner_join(
+    miAdmission |>
+      dplyr::select("person_id", "visit_start_datetime", "visit_end_date"),
+    by = "person_id"
+  ) |>
+  dplyr::filter(
+    procedure_date <= visit_end_date &
+      visit_start_datetime <= procedure_datetime
+  ) |>
+  dplyr::group_by(person_id, procedure) |>
+  dplyr::summarise(procedure_datetime = min(procedure_datetime)) |>
+  dplyr::collect() |>
+  tidyr::pivot_wider(
+    names_from = "procedure",
+    values_from = "procedure_datetime"
+  )
+
+x <- miAdmission |>
+  dplyr::select(
+    "person_id", "visit_start_datetime", "admitted_from_concept_id",
+    "discharged_to_concept_id"
+  ) |>
+  dplyr::inner_join(drugOfInterest, by = "person_id") |>
+  dplyr::inner_join(proceduresOfInterest, by = "person_id")
+
+cols <- c(names(mi_proc), "thrombolytics_alteplase", "thrombolytics_tenecteplase")
+for (col in cols) {
+  if (col %in% colnames(x)) {
+    x[[col]] <- as.numeric(difftime(time1 = x[[col]], time2 = x$visit_start_datetime, units = "mins"))
+  } else {
+    x[[col]] <- as.numeric(NA)
+  }
+}
+
+x$admitting_source_concept_id <- sprintf("%i", x$admitted_from_concept_id)
+x$discharge_to_concept_id <- sprintf("%i", x$discharged_to_concept_id)
+x$cohort_name <- "acute_mi"
+
+results$extra_mi <- PatientProfiles::summariseResult(
+  table = x,
+  group = "cohort_name", 
+  variables = list(
+    c("discharge_to_concept_id", "admitting_source_concept_id"),
+    cols
+  ),
+  estimates = list(
+    c("count", "percentage"),
+    c("percentage_missing", "count_missing", "min", "max", "q05", "q25", 
+      "median", "q75", "q95")
+  )
+)
