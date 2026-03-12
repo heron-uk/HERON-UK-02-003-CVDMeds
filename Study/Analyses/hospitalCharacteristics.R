@@ -1,10 +1,16 @@
 # parametrisation
 procWindow <- c(-28, 28)
-procNm <- "Procedures c(-28, 28)"
+procNm <- "Procedures [-28, 28]"
 ageGroupStrata <- list("age_range" = list(c(18, 59), c(60, 84), c(85, Inf)))
 ageGroupChar <- list(c(18, 39), c(40, 49), c(50, 59), c(60, 69), c(70, 79), c(80, 89), c(90, Inf))
+thrombolWindow <- c(-28, 28)
+thrombolNm <- "Drugs [-28, 28]"
+drugWindow <- c(0, 14)
+drugNm <- "Drugs [0, 14]"
 
 drugs_cl <- importCodelist(here("Cohorts", "Hospital", "drugs"), type = "csv")
+drugs_tromb <- drugs_cl[grepl("thrombolytics", names(drugs_cl))]
+drugs_rest <- drugs_cl[!grepl("thrombolytics", names(drugs_cl))]
 
 mi_proc <- importCodelist(here("Cohorts", "Hospital", "miProcedures"), type = "csv")
 
@@ -55,12 +61,16 @@ char_mi <- cdm$mi_inpatient_chars |>
   summariseCharacteristics(
     ageGroup = ageGroupChar,
     conceptIntersectFlag = list(
-      "Drug Treatment (0, 14)" = list(
-        conceptSet = drugs_cl,
-        window = list(
-          c(0,14)
-        )
-      ),
+      list(
+        conceptSet = drugs_rest,
+        window = drugWindow
+      ) |>
+        rlang::set_names(drugNm),
+      list(
+        conceptSet = drugs_tromb,
+        window = thrombolWindow
+      ) |>
+        rlang::set_names(thrombolNm),
       list(
         conceptSet = mi_proc,
         window = procWindow
@@ -111,12 +121,16 @@ char_stroke <- cdm$stroke_inpatient_chars |>
   summariseCharacteristics(
     ageGroup = ageGroupChar,
     conceptIntersectFlag = list(
-      "Drug Treatment (0, 14)" = list(
-        conceptSet = drugs_cl,
-        window = list(
-          c(0,14)
-        )
-      ),
+      list(
+        conceptSet = drugs_rest,
+        window = drugWindow
+      ) |>
+        rlang::set_names(drugNm),
+      list(
+        conceptSet = drugs_tromb,
+        window = thrombolWindow
+      ) |>
+        rlang::set_names(thrombolNm),
       list(
         conceptSet = stroke_proc,
         window = procWindow
