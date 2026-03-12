@@ -127,8 +127,28 @@ for (cn in cns) {
 ```
 
 
-### Compare age groups
+### RESULTS (ABM)
 
-### new table
+##Supplementary Table 1: Features of each hospital 
 
-### Compare Socioeconomic status
+##Table 1: General description of the populations: AIS and AMI counts and sociodemographic and comorbidities (for AIS and AMI)
+
+
+##Table 2: the pattern of use of medications (antiplatelets, anticoagulants, statins, thrombolytics) (for AIS and AMI)across centres
+	MI and AIS: statins use
+	AIS-AF: DOAC, warfarin 
+
+
+### Table 3: the patterns of use of procedures (PCI, storke_procedures_rx (EVT, intra and extracranial stenting))
+
+##Table 4: timing to reperfussion treatment (admission>>thrombolytics, admission>PCI/stroke_procedures_rx) (Lancshire). 
+#Figure 1: differences for age
+#Figure 2: differences for SES
+
+##Figure 3 and 4: statins use (for AIS and AMI): differences for sex and age
+
+##Figure 5 and 6: Ticagrelor vs clopidogrel (for AIS and AMI): differences for sex and age
+
+##Figure 7 and 8 (AIS-AF): Anticoagulants use (DOAC vs warfarin): differences for sex and age
+
+##Table 5: Outcomes (for AIS and AMI)>> discharge destination and death
