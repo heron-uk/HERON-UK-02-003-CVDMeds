@@ -45,4 +45,8 @@ diagnostics_shiny/data/raw/*.csv
 diagnostics_shiny/data/appData.RData
 diagnostics_shiny/data/appData.qs
 
+inpatient_shiny/report_files/*
+inpatient_shiny/report.html
+inpatient_shiny/report.docx
+
 *.DS_Store
