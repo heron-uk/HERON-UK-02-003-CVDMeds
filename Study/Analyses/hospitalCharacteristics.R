@@ -35,14 +35,25 @@ results[["cohort_count_stroke"]] <- cdm$stroke_inpatient_first|>
 
 results[["cohort_code_use_mi"]] <- summariseCohortCodeUse(
   cohortTable = "mi_inpatient_first",
-    cdm = cdm,
-    timing = "entry"
-  )
+  cdm = cdm,
+  timing = "entry", 
+  x = acute_mi_cl
+)
 
 results[["cohort_code_use_stroke"]] <-summariseCohortCodeUse(
   cohortTable = "stroke_inpatient_first",
   cdm = cdm,
-  timing = "entry"
+  timing = "entry",
+  x = stroke_cl, 
+  cohortId = "ischemic_stroke"
+)
+
+results[["cohort_code_use_stroke_broad"]] <-summariseCohortCodeUse(
+  cohortTable = "stroke_inpatient_first",
+  cdm = cdm,
+  timing = "entry",
+  x = stroke_broad, 
+  cohortId = "stroke_broad"
 )
 
 results[["cohort_attrition_mi"]] <- cdm$mi_inpatient_first |>
