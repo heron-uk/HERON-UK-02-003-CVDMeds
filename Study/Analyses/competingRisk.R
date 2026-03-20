@@ -4,137 +4,98 @@ cdm$acute_mi_crm <- cdm$acute_mi_first |>
   requireAge(ageRange = c(18,150))
 
 # MI
-antic_id <- settings(cdm$mi_drugs_final) |>
+antic_id <- settings(cdm$mi_drugs_first) |>
   filter(cohort_name == "anticoagulants_mi") |>
   pull(cohort_definition_id)
 
 
 if(length(antic_id) == 1){
 cdm$mi_crm_antic <- cdm$acute_mi_crm |>
-  PatientProfiles::addCohortIntersectFlag(
-    targetCohortTable = "mi_drugs_final",
-    targetCohortId = antic_id,
-    targetStartDate = "cohort_start_date",
-    window = list(c(0, 30)),
-    name = "mi_crm_antic"
-  ) |>
   PatientProfiles::addCohortIntersectDays(
-    targetCohortTable = "mi_drugs_final",
-    targetCohortId = antic_id,
+    targetCohortTable = "mi_drugs_first",
+    targetCohortId = "anticoagulants_mi",
     targetDate = "cohort_start_date",
-    nameStyle = "{cohort_name}",
-    window = list(c(0, 30))
+    nameStyle = "days_to_treatment",
+    window = list(c(0, 28))
   ) |>
-  dplyr::rename("initiate_treatment" = "anticoagulants_mi_0_to_30",
-                "days_to_treatment" = "anticoagulants_mi") |>
-  PatientProfiles::addDeathDays(
-    window = c(0, 30)
-  ) |>
+  PatientProfiles::addDeathDays() |>
+  PatientProfiles::addFutureObservation() |>
   compute(name = "mi_crm_antic", temporary = FALSE) |>
-  renameCohort(newCohortName = "anticoagulants_mi")
-} else {
-  cdm$mi_crm_antic <- omopgenerics::emptyCohortTable(
-    name = "mi_crm_antic"
+  renameCohort(newCohortName = "anticoagulants_mi") 
+  cdm <- omopgenerics::emptyCohortTable(
+    name = "mi_crm_antic",
+    cdm = cdm
   ) 
 }
 
-antih_id <- settings(cdm$mi_drugs_final) |>
+antih_id <- settings(cdm$mi_drugs_first) |>
   filter(cohort_name == "antihypertensive_mi") |>
   pull(cohort_definition_id)
 
 if(length(antih_id) == 1){
 cdm$mi_crm_antih <- cdm$acute_mi_crm |>
-  PatientProfiles::addCohortIntersectFlag(
-    targetCohortTable = "mi_drugs_final",
-    targetCohortId = antih_id,
-    targetStartDate = "cohort_start_date",
-    window = list(c(0, 30)),
-    name = "mi_crm_antih"
-  ) |>
   PatientProfiles::addCohortIntersectDays(
-    targetCohortTable = "mi_drugs_final",
-    targetCohortId = antih_id,
+    targetCohortTable = "mi_drugs_first",
+    targetCohortId = "antihypertensive_mi",
     targetDate = "cohort_start_date",
-    nameStyle = "{cohort_name}",
-    window = list(c(0, 30))
+    nameStyle = "days_to_treatment",
+    window = list(c(0, 28))
   ) |>
-  dplyr::rename("initiate_treatment" = "antihypertensive_mi_0_to_30",
-                "days_to_treatment" = "antihypertensive_mi") |>
-  PatientProfiles::addDeathDays(
-    window = c(0, 30)
-  ) |>
+  PatientProfiles::addDeathDays() |>
+  PatientProfiles::addFutureObservation() |>
   compute(name = "mi_crm_antih", temporary = FALSE) |>
   renameCohort(newCohortName = "antihypertensives_mi")
-} else {
-  cdm$mi_crm_antih <- omopgenerics::emptyCohortTable(
-    name = "mi_crm_antih"
+  cdm <- omopgenerics::emptyCohortTable(
+    name = "mi_crm_antih",
+    cdm = cdm
   ) 
 }
 
-antip_id <- settings(cdm$mi_drugs_final) |>
+antip_id <- settings(cdm$mi_drugs_first) |>
   filter(cohort_name == "antiplatelets_mi") |>
   pull(cohort_definition_id)
 
 if(length(antip_id) == 1){
 cdm$mi_crm_antip <- cdm$acute_mi_crm |>
-  PatientProfiles::addCohortIntersectFlag(
-    targetCohortTable = "mi_drugs_final",
-    targetCohortId = antip_id,
-    targetStartDate = "cohort_start_date",
-    window = list(c(0, 30)),
-    name = "mi_crm_antip"
-  ) |>
   PatientProfiles::addCohortIntersectDays(
-    targetCohortTable = "mi_drugs_final",
-    targetCohortId = antip_id,
+    targetCohortTable = "mi_drugs_first",
+    targetCohortId = "antiplatelets_mi",
     targetDate = "cohort_start_date",
-    nameStyle = "{cohort_name}",
-    window = list(c(0, 30))
+    nameStyle = "days_to_treatment",
+    window = list(c(0, 28))
   ) |>
-  dplyr::rename("initiate_treatment" = "antiplatelets_mi_0_to_30",
-                "days_to_treatment" = "antiplatelets_mi") |>
-  PatientProfiles::addDeathDays(
-    window = c(0, 30)
-  ) |>
+  PatientProfiles::addDeathDays() |>
+  PatientProfiles::addFutureObservation() |>
   compute(name = "mi_crm_antip", temporary = FALSE) |>
   renameCohort(newCohortName = "antiplatelets_mi")
-
 } else {
-  cdm$mi_crm_antip <- omopgenerics::emptyCohortTable(
-    name = "mi_crm_antip"
+  cdm <- omopgenerics::emptyCohortTable(
+    name = "mi_crm_antip",
+    cdm = cdm
   )
 }
 
-ll_id <- settings(cdm$mi_drugs_final) |>
+ll_id <- settings(cdm$mi_drugs_first) |>
   filter(cohort_name == "lipid_lowering_mi") |>
   pull(cohort_definition_id)
 
 if(length(ll_id) == 1){
 cdm$mi_crm_ll <- cdm$acute_mi_crm |>
-  PatientProfiles::addCohortIntersectFlag(
-    targetCohortTable = "mi_drugs_final",
-    targetCohortId = ll_id,
-    targetStartDate = "cohort_start_date",
-    window = list(c(0, 30)),
-    name = "mi_crm_ll"
-  ) |>
   PatientProfiles::addCohortIntersectDays(
-    targetCohortTable = "mi_drugs_final",
-    targetCohortId = ll_id,
+    targetCohortTable = "mi_drugs_first",
+    targetCohortId = "lipid_lowering_mi",
     targetDate = "cohort_start_date",
-    nameStyle = "{cohort_name}",
-    window = list(c(0, 30))
+    nameStyle = "days_to_treatment",
+    window = list(c(0, 28))
   ) |>
-  dplyr::rename("initiate_treatment" = "lipid_lowering_mi_0_to_30",
-                "days_to_treatment" = "lipid_lowering_mi") |>
-  PatientProfiles::addDeathDays(
-    window = c(0, 30)
-  ) |>
+  PatientProfiles::addDeathDays() |>
+  PatientProfiles::addFutureObservation() |>
   compute(name = "mi_crm_ll", temporary = FALSE) |>
   renameCohort(newCohortName = "lipid_lowering_mi")
 } else {
-  cdm$mi_crm_ll <- omopgenerics::emptyCohortTable(
-    name = "mi_crm_ll"
+  cdm <- omopgenerics::emptyCohortTable(
+    name = "mi_crm_ll",
+    cdm = cdm
   )
 }
 
@@ -166,27 +127,24 @@ cdm$mi_crm <- cdm$mi_crm |>
   addSES()
 
 x_mi <- cdm$mi_crm |> 
+  addCohortName() |>
   collect() |>
   mutate(
     days_to_treatment = coalesce(days_to_treatment, 9999),
-    days_to_death = coalesce(days_to_death, 9999)
+    days_to_death = coalesce(days_to_death, 9999),
+    future_observation = pmin(days_to_death, future_observation)
   ) |>
   mutate(event = case_when(
-    initiate_treatment == 1 ~ "treatment",
-    !is.na(days_to_death) & is.na(days_to_treatment) | days_to_death < days_to_treatment ~ "death",
+    days_to_treatment < future_observation ~ "treatment",
+    days_to_death < days_to_treatment ~ "death",
     TRUE ~ "censor"
   ),
   event = factor(event, levels = c("censor", "treatment", "death")),
-  time = pmin(days_to_treatment, days_to_death, na.rm = TRUE)) |>
+  time = pmin(days_to_treatment, days_to_death, future_observation, na.rm = TRUE)) |>
   mutate(
     sex = factor(sex),
     age_group = factor(age_group),
-    ses = factor(ses),
-    cohort_name = case_when(
-      cohort_definition_id == 1 ~ "Anticoagulants - MI",
-      cohort_definition_id == 2 ~ "Antihypertensives - MI",
-      cohort_definition_id == 3 ~ "Antiplatelets - MI",
-      cohort_definition_id == 4 ~ "Lipid Lowering - MI")
+    ses = factor(ses)
   )
 
 #### Stroke
@@ -196,137 +154,101 @@ cdm$ischemic_stroke_crm <- cdm$stroke_first |>
                      name = "ischemic_stroke_crm") |>
   requireAge(ageRange = c(18,150))
 
-antic_id_is <- settings(cdm$stroke_drugs_final) |>
+antic_id_is <- settings(cdm$stroke_drugs_first) |>
   filter(cohort_name == "anticoagulants_stroke") |>
   pull(cohort_definition_id)
 
 
 if(length(antic_id_is) == 1){
   cdm$stroke_crm_antic <- cdm$ischemic_stroke_crm |>
-    PatientProfiles::addCohortIntersectFlag(
-      targetCohortTable = "stroke_drugs_final",
-      targetCohortId = antic_id_is,
-      targetStartDate = "cohort_start_date",
-      window = list(c(0, 30)),
-      name = "stroke_crm_antic"
-    ) |>
     PatientProfiles::addCohortIntersectDays(
-      targetCohortTable = "stroke_drugs_final",
-      targetCohortId = antic_id_is,
+      targetCohortTable = "stroke_drugs_first",
+      targetCohortId = "anticoagulants_stroke",
       targetDate = "cohort_start_date",
-      nameStyle = "{cohort_name}",
-      window = list(c(0, 30))
+      nameStyle = "days_to_treatment",
+      window = list(c(0, 28))
     ) |>
-    dplyr::rename("initiate_treatment" = "anticoagulants_stroke_0_to_30",
-                  "days_to_treatment" = "anticoagulants_stroke") |>
-    PatientProfiles::addDeathDays(
-      window = c(0, 30)
-    ) |>
+    PatientProfiles::addDeathDays() |>
+    PatientProfiles::addFutureObservation() |>
     compute(name = "stroke_crm_antic", temporary = FALSE) |>
     renameCohort(newCohortName = "anticoagulants_stroke")
 } else {
-  cdm$stroke_crm_antic <- omopgenerics::emptyCohortTable(
-    name = "stroke_crm_antic"
+  cdm <- omopgenerics::emptyCohortTable(
+    name = "stroke_crm_antic",
+    cdm = cdm
   ) 
 }
 
-antih_id_is <- settings(cdm$stroke_drugs_final) |>
+antih_id_is <- settings(cdm$stroke_drugs_first) |>
   filter(cohort_name == "antihypertensive_stroke") |>
   pull(cohort_definition_id)
 
 if(length(antih_id_is) == 1){
   cdm$stroke_crm_antih <- cdm$ischemic_stroke_crm |>
-    PatientProfiles::addCohortIntersectFlag(
-      targetCohortTable = "stroke_drugs_final",
-      targetCohortId = antih_id_is,
-      targetStartDate = "cohort_start_date",
-      window = list(c(0, 30)),
-      name = "stroke_crm_antih"
-    ) |>
     PatientProfiles::addCohortIntersectDays(
-      targetCohortTable = "stroke_drugs_final",
-      targetCohortId = antih_id_is,
+      targetCohortTable = "stroke_drugs_first",
+      targetCohortId = "antihypertensive_stroke",
       targetDate = "cohort_start_date",
-      nameStyle = "{cohort_name}",
-      window = list(c(0, 30))
+      nameStyle = "days_to_treatment",
+      window = list(c(0, 28))
     ) |>
-    dplyr::rename("initiate_treatment" = "antihypertensive_stroke_0_to_30",
-                  "days_to_treatment" = "antihypertensive_stroke") |>
-    PatientProfiles::addDeathDays(
-      window = c(0, 30)
-    ) |>
+    PatientProfiles::addDeathDays() |>
+    PatientProfiles::addFutureObservation() |>
     compute(name = "stroke_crm_antih", temporary = FALSE) |>
     renameCohort(newCohortName = "antihypertensives_stroke")
 } else {
-  cdm$stroke_crm_antih <- omopgenerics::emptyCohortTable(
-    name = "stroke_crm_antih"
+  cdm <- omopgenerics::emptyCohortTable(
+    name = "stroke_crm_antih",
+    cdm = cdm
   ) 
 }
 
-antip_id_is <- settings(cdm$stroke_drugs_final) |>
+antip_id_is <- settings(cdm$stroke_drugs_first) |>
   filter(cohort_name == "antiplatelets_stroke") |>
   pull(cohort_definition_id)
 
 if(length(antip_id_is) == 1){
   cdm$stroke_crm_antip <- cdm$ischemic_stroke_crm |>
-    PatientProfiles::addCohortIntersectFlag(
-      targetCohortTable = "stroke_drugs_final",
-      targetCohortId = antip_id_is,
-      targetStartDate = "cohort_start_date",
-      window = list(c(0, 30)),
-      name = "stroke_crm_antip"
-    ) |>
     PatientProfiles::addCohortIntersectDays(
-      targetCohortTable = "stroke_drugs_final",
-      targetCohortId = antip_id_is,
+      targetCohortTable = "stroke_drugs_first",
+      targetCohortId = "antiplatelets_stroke",
       targetDate = "cohort_start_date",
-      nameStyle = "{cohort_name}",
-      window = list(c(0, 30))
+      nameStyle = "days_to_treatment",
+      window = list(c(0, 28))
     ) |>
-    dplyr::rename("initiate_treatment" = "antiplatelets_stroke_0_to_30",
-                  "days_to_treatment" = "antiplatelets_stroke") |>
-    PatientProfiles::addDeathDays(
-      window = c(0, 30)
-    ) |>
+    PatientProfiles::addDeathDays() |>
+    PatientProfiles::addFutureObservation() |>
     compute(name = "stroke_crm_antip", temporary = FALSE) |>
     renameCohort(newCohortName = "antiplatelets_stroke")
   
 } else {
-  cdm$stroke_crm_antip <- omopgenerics::emptyCohortTable(
-    name = "stroke_crm_antip"
+  cdm <- omopgenerics::emptyCohortTable(
+    name = "stroke_crm_antip",
+    cdm = cdm
   )
 }
 
-ll_id_is <- settings(cdm$stroke_drugs_final) |>
+ll_id_is <- settings(cdm$stroke_drugs_first) |>
   filter(cohort_name == "lipid_lowering_stroke") |>
   pull(cohort_definition_id)
 
 if(length(ll_id_is) == 1){
   cdm$stroke_crm_ll <- cdm$ischemic_stroke_crm |>
-    PatientProfiles::addCohortIntersectFlag(
-      targetCohortTable = "stroke_drugs_final",
-      targetCohortId = ll_id_is,
-      targetStartDate = "cohort_start_date",
-      window = list(c(0, 30)),
-      name = "stroke_crm_ll"
-    ) |>
     PatientProfiles::addCohortIntersectDays(
-      targetCohortTable = "stroke_drugs_final",
-      targetCohortId = ll_id_is,
+      targetCohortTable = "stroke_drugs_first",
+      targetCohortId = "lipid_lowering_stroke",
       targetDate = "cohort_start_date",
-      nameStyle = "{cohort_name}",
-      window = list(c(0, 30))
+      nameStyle = "days_to_treatment",
+      window = list(c(0, 28))
     ) |>
-    dplyr::rename("initiate_treatment" = "lipid_lowering_stroke_0_to_30",
-                  "days_to_treatment" = "lipid_lowering_stroke") |>
-    PatientProfiles::addDeathDays(
-      window = c(0, 30)
-    ) |>
+    PatientProfiles::addDeathDays() |>
+    PatientProfiles::addFutureObservation() |>
     compute(name = "stroke_crm_ll", temporary = FALSE) |>
     renameCohort(newCohortName = "lipid_lowering_stroke")
 } else {
-  cdm$stroke_crm_ll <- omopgenerics::emptyCohortTable(
-    name = "stroke_crm_ll"
+  cdm <- omopgenerics::emptyCohortTable(
+    name = "stroke_crm_ll",
+    cdm = cdm
   )
 }
 
@@ -358,28 +280,26 @@ cdm$stroke_crm <- cdm$stroke_crm |>
   addSES()
 
 x_stroke <- cdm$stroke_crm |> 
+  addCohortName() |>
   collect() |>
   mutate(
     days_to_treatment = coalesce(days_to_treatment, 9999),
-    days_to_death = coalesce(days_to_death, 9999)
+    days_to_death = coalesce(days_to_death, 9999),
+    future_observation = pmin(days_to_death, future_observation)
   ) |>
   mutate(event = case_when(
-    initiate_treatment == 1 ~ "treatment",
-    !is.na(days_to_death) & is.na(days_to_treatment) | days_to_death < days_to_treatment ~ "death",
+    days_to_treatment < future_observation ~ "treatment",
+    days_to_death < days_to_treatment ~ "death",
     TRUE ~ "censor"
   ),
   event = factor(event, levels = c("censor", "treatment", "death")),
-  time = pmin(days_to_treatment, days_to_death, na.rm = TRUE)) |>
+  time = pmin(days_to_treatment, days_to_death, future_observation, na.rm = TRUE)) |>
   mutate(
     sex = factor(sex),
     age_group = factor(age_group),
-    ses = factor(ses),
-    cohort_name = case_when(
-      cohort_definition_id == 1 ~ "Anticoagulants - Stroke",
-      cohort_definition_id == 2 ~ "Antihypertensives - Stroke",
-      cohort_definition_id == 3 ~ "Antiplatelets - Stroke",
-      cohort_definition_id == 4 ~ "Lipid Lowering - Stroke")
+    ses = factor(ses)
   )
+
 
 x <- rbind(x_mi, x_stroke)
 
@@ -401,11 +321,11 @@ msdata <- x |>
 
 cli::cli_inform(c(i = "Fitting CR model for {.pkg {coh}}"))
 
-cif <- tidycmprsk::cuminc(Surv(time, event) ~ 1, data = x)
+cif <- cuminc(Surv(time, event) ~ 1, data = x)
 
 cif_df <- cif |>
   broom::tidy() |>
-  filter(time <= 30) |>
+  filter(time <= 28) |>
   select(time, outcome, estimate) |>
   pivot_wider(names_from = outcome, values_from = estimate, values_fill = 0) |>
   mutate(
@@ -439,7 +359,7 @@ if (sex_count < 2 & ses_count < 2 & age_group_count < 2) {
   cli::cli_alert_info("Insufficient levels in strata for cohort {.pkg {coh}}. Skipping adjusted CR model.")
 } else {
   
-cr_model <- tidycmprsk::crr(
+cr_model <- crr(
   Surv(time, event) ~ age_group + sex + ses,
   data = msdata,
   failcode = "treatment"
