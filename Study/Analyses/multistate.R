@@ -7,6 +7,8 @@ mi_drugs_count <- cdm$mi_drugs_final |>
   filter(n >= 100) |>
   pull(cohort_definition_id)
 
+if(length(mi_drugs_count) > 0){
+
 cdm$mi_drugs_msm <- cdm$mi_drugs_final |>
   subsetCohorts(
     cohortId = mi_drugs_count,
@@ -27,8 +29,11 @@ cdm$mi_drugs_msm <- cdm$mi_drugs_final |>
       "80 to 89" = c(80, 89),
       "90+" = c(90, 150))
   ) |>
-  addSES()
+  addSES() |> 
+  addCountry()
+}
 
+if(length(stroke_drugs_count) > 0){
 stroke_drugs_count <- cdm$stroke_drugs_final |>
   collect() |>
   group_by(cohort_definition_id) |>
@@ -57,13 +62,15 @@ cdm$stroke_drugs_msm <- cdm$stroke_drugs_final |>
       "80 to 89" = c(80, 89),
       "90+" = c(90, 150))
   ) |>
-  addSES()
+  addSES() |> 
+  addCountry()
+}
 
 if(length(mi_drugs_count) > 0){
 nm_1 <- omopgenerics::uniqueTableName()
 xd_1 <- cdm$mi_drugs_msm |>
   addCohortName() |>
-  group_by(cohort_name, subject_id, age_group, sex, ses) |>
+  group_by(cohort_name, subject_id, age_group, sex, ses, country) |>
   mutate(t0 = min(cohort_start_date, na.rm = TRUE)) |>
   ungroup() |>
   mutate(
@@ -75,7 +82,7 @@ xd_1 <- cdm$mi_drugs_msm |>
   addFutureObservation(indexDate = "t0", futureObservationType = "days", name = nm_1) |>
   addCohortIntersectDays(indexDate = "t0", targetCohortTable = "acute_mi_second", window = c(-Inf,Inf)) |>
   rename(second_event = acute_mi_minf_to_inf) |>
-  select("cohort_name", "subject_id", "age_group", "sex", "ses", "start_drug", "start_discontinuation", "days_to_death", "future_observation", "second_event") |>
+  select("cohort_name", "subject_id", "age_group", "sex", "ses", "country", "start_drug", "start_discontinuation", "days_to_death", "future_observation", "second_event") |>
   collect() |>
   mutate(
     days_to_death = coalesce(days_to_death, 9999L),
@@ -107,7 +114,7 @@ xd_2 <- cdm$stroke_drugs_msm |>
   addFutureObservation(indexDate = "t0", futureObservationType = "days", name = nm_2) |>
   addCohortIntersectDays(indexDate = "t0", targetCohortTable = "stroke_second", window = c(-Inf,Inf)) |>
   rename(second_event = ischemic_stroke_minf_to_inf) |>
-  select("cohort_name", "subject_id", "age_group", "sex", "ses", "start_drug", "start_discontinuation", "days_to_death", "future_observation", "second_event") |>
+  select("cohort_name", "subject_id", "age_group", "sex", "ses", "country", "start_drug", "start_discontinuation", "days_to_death", "future_observation", "second_event") |>
   collect() |>
   mutate(
     days_to_death = coalesce(days_to_death, 9999L),
@@ -156,7 +163,7 @@ transitionsTreated <- xd |>
       transition == "discontinue" ~ start_discontinuation
     )
   ) |>
-  select("cohort_name", "subject_id", "age_group", "sex", "ses",  "Tstart", "Tstop", "transition")
+  select("cohort_name", "subject_id", "age_group", "sex", "ses", "country",  "Tstart", "Tstop", "transition")
 
 # prepare transitions from untreated
 transitionsUntreated <- xd |>
@@ -177,7 +184,7 @@ transitionsUntreated <- xd |>
       transition == "restart" ~ start_drug
     )
   ) |>
-  select("cohort_name", "subject_id", "age_group", "sex", "ses", "Tstart", "Tstop", "transition")
+  select("cohort_name", "subject_id", "age_group", "sex", "ses", "country", "Tstart", "Tstop", "transition")
 
 # treated to untreated
 x <- transitionsTreated |>
@@ -187,7 +194,7 @@ x <- transitionsTreated |>
     trans = 1L,
     status = if_else(transition == "discontinue", 1, 0)
   ) |>
-  select("cohort_name", "subject_id", "age_group", "sex", "ses", "from", "to", "trans", "Tstart", "Tstop", "status") |>
+  select("cohort_name", "subject_id", "age_group", "sex", "ses", "country", "from", "to", "trans", "Tstart", "Tstop", "status") |>
   # treated to death
   union_all(
     transitionsTreated |>
@@ -197,7 +204,7 @@ x <- transitionsTreated |>
         trans = 3L,
         status = if_else(transition == "death", 1, 0)
       ) |>
-      select("cohort_name", "subject_id","age_group", "sex", "ses", "from", "to", "trans", "Tstart", "Tstop", "status")
+      select("cohort_name", "subject_id","age_group", "sex", "ses", "country", "from", "to", "trans", "Tstart", "Tstop", "status")
   ) |>
   # untreated to treated
   union_all(
@@ -208,7 +215,7 @@ x <- transitionsTreated |>
         trans = 2L,
         status = if_else(transition == "restart", 1, 0)
       ) |>
-      select("cohort_name", "subject_id","age_group", "sex", "ses", "from", "to", "trans", "Tstart", "Tstop", "status")
+      select("cohort_name", "subject_id","age_group", "sex", "ses", "country", "from", "to", "trans", "Tstart", "Tstop", "status")
   ) |>
   # untreated to death
   union_all(
@@ -219,23 +226,40 @@ x <- transitionsTreated |>
         trans = 4L,
         status = if_else(transition == "death", 1, 0)
       ) |>
-      select("cohort_name", "subject_id","age_group", "sex", "ses", "from", "to", "trans", "Tstart", "Tstop", "status")
+      select("cohort_name", "subject_id","age_group", "sex", "ses", "country", "from", "to", "trans", "Tstart", "Tstop", "status")
   )
 
 cohorts <- unique(x$cohort_name)
+country <- c(unique(x$country), "All")
 
 msm_results <- list()
 
 for (coh in cohorts) {
+  for(cou in country){
+    if(cou != "All"){
   msdata <- x |>
-    filter(cohort_name == coh) |>
+    filter(cohort_name == coh,
+           country == cou) |>
     mutate(
+      cohort_name = paste0(coh,"_",cou),
       sex = relevel(factor(sex), ref = "Female"),
       age_group = relevel(factor(age_group), ref = "50 to 59"),
       ses = relevel(factor(ses), ref = "5")
     )
+  name <- paste0(coh,"_",cou)
+    } else if(cou == "All") {
+      msdata <- x |>
+        filter(cohort_name == coh) |>
+        mutate(
+          cohort_name = paste0(coh,"_",cou),
+          sex = relevel(factor(sex), ref = "Female"),
+          age_group = relevel(factor(age_group), ref = "50 to 59"),
+          ses = relevel(factor(ses), ref = "5")
+        )
+      name <- paste0(coh,"_",cou)
+    }
   
-  cli::cli_inform(c(i = "Fitting MS model for {.pkg {coh}}"))
+  cli::cli_inform(c(i = "Fitting MS model for {.pkg {name}}"))
   
   # fit probabilities over time (unadjusted model)
   cox_mod <- coxph(
@@ -252,7 +276,7 @@ for (coh in cohorts) {
     pivot_longer(starts_with("pstate"), names_to = "state", values_to = "probability") |>
     mutate(state = recode(state, pstate1 = "Treated", pstate2 = "Discontinued", pstate3 = "Death"))|>
     arrange(time, state) |>
-    mutate(cohort_name = coh,
+    mutate(cohort_name = name,
            result_type = "mms_probabilities") |>
     filter(time <= 1830)
   
@@ -266,7 +290,7 @@ for (coh in cohorts) {
     mutate(cdm_name = omopgenerics::cdmName(cdm))
   
   
-  msm_results[[paste0("msm_prob_",coh)]] <- sum_xp
+  msm_results[[paste0("msm_prob_",coh, "_", cou)]] <- sum_xp
   
   # fit adjusted model
   
@@ -299,7 +323,7 @@ for (coh in cohorts) {
       tidy(cox_mod) |>
         select("variable_level" = "term", "coef" = "estimate", "se" = "std.error", "se_robust" = "robust.se") |>
         mutate(
-          cohort_name = coh,
+          cohort_name = name,
           cdm_name = omopgenerics::cdmName(cdm),
           variable_name = "Cox regression coefficients",
           result_type = "cox_coefficients"
@@ -314,8 +338,9 @@ for (coh in cohorts) {
       NULL
     })
     
-    msm_results[[paste0("msm_coef_",coh)]] <- res_coef
+    msm_results[[paste0("msm_coef_",coh, "_", cou)]] <- res_coef
     
+  }
   }
 }
 
