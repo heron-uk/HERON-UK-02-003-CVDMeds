@@ -43,6 +43,7 @@ cdm$mi_drugs_chars <- cdm$mi_drugs_first |>
   )
 
 cdm$mi_drugs_chars <- cdm$mi_drugs_chars |>
+  addCountry() |>
   addCKDStage() |>
   addEthnicity() |>
   addSES()
@@ -99,8 +100,11 @@ char_mi <- summariseCharacteristics(cdm$mi_drugs_chars,
                                         )
                                       ) 
                                     ),
-                                    strata = list(c("age_group"), c("sex"), c("ses")
-                                    ),
+                                    strata = list(c("country"), c("age_group"), c("sex"), c("ses"),
+                                                  c("country", "age_group"),
+                                                  c("country", "sex"),
+                                                  c("country", "ses")
+                                                  ),
                                     otherVariables = c("ses", "ethnicity", "ckd_stage"))
 
 
@@ -118,6 +122,7 @@ cdm$stroke_drugs_chars <- cdm$stroke_drugs_first |>
   )
 
 cdm$stroke_drugs_chars <- cdm$stroke_drugs_chars |>
+  addCountry() |>
   addCKDStage() |>
   addEthnicity() |>
   addSES()
@@ -173,7 +178,10 @@ char_stroke <- summariseCharacteristics(cdm$stroke_drugs_chars,
                                             )
                                           ) 
                                         ),
-                                        strata = list(c("age_group"), c("sex"), c("ses")
+                                        strata = list(c("country"), c("age_group"), c("sex"), c("ses"),
+                                                      c("country", "age_group"),
+                                                      c("country", "sex"),
+                                                      c("country", "ses")
                                         ),
                                         otherVariables = c("ses", "ethnicity", "ckd_stage"))
 
