@@ -22,6 +22,7 @@ cdm$mi_crm_antic <- cdm$acute_mi_crm |>
   PatientProfiles::addFutureObservation() |>
   compute(name = "mi_crm_antic", temporary = FALSE) |>
   renameCohort(newCohortName = "anticoagulants_mi") 
+} else {
   cdm <- omopgenerics::emptyCohortTable(
     name = "mi_crm_antic",
     cdm = cdm
@@ -45,6 +46,7 @@ cdm$mi_crm_antih <- cdm$acute_mi_crm |>
   PatientProfiles::addFutureObservation() |>
   compute(name = "mi_crm_antih", temporary = FALSE) |>
   renameCohort(newCohortName = "antihypertensives_mi")
+} else {
   cdm <- omopgenerics::emptyCohortTable(
     name = "mi_crm_antih",
     cdm = cdm
@@ -124,28 +126,8 @@ cdm$mi_crm <- cdm$mi_crm |>
       "80 to 89" = c(80, 89),
       "90+" = c(90, 150))
   ) |>
-  addSES()
-
-x_mi <- cdm$mi_crm |> 
-  addCohortName() |>
-  collect() |>
-  mutate(
-    days_to_treatment = coalesce(days_to_treatment, 9999),
-    days_to_death = coalesce(days_to_death, 9999),
-    future_observation = pmin(days_to_death, future_observation)
-  ) |>
-  mutate(event = case_when(
-    days_to_treatment < future_observation ~ "treatment",
-    days_to_death < days_to_treatment ~ "death",
-    TRUE ~ "censor"
-  ),
-  event = factor(event, levels = c("censor", "treatment", "death")),
-  time = pmin(days_to_treatment, days_to_death, future_observation, na.rm = TRUE)) |>
-  mutate(
-    sex = factor(sex),
-    age_group = factor(age_group),
-    ses = factor(ses)
-  )
+  addSES() |>
+  addCountry()
 
 #### Stroke
 
@@ -277,7 +259,31 @@ cdm$stroke_crm <- cdm$stroke_crm |>
       "80 to 89" = c(80, 89),
       "90+" = c(90, 150))
   ) |>
-  addSES()
+  addSES() |>
+  addCountry()
+
+########
+
+x_mi <- cdm$mi_crm |> 
+  addCohortName() |>
+  collect() |>
+  mutate(
+    days_to_treatment = coalesce(days_to_treatment, 9999),
+    days_to_death = coalesce(days_to_death, 9999),
+    future_observation = pmin(days_to_death, future_observation)
+  ) |>
+  mutate(event = case_when(
+    days_to_treatment < future_observation ~ "treatment",
+    days_to_death < days_to_treatment ~ "death",
+    TRUE ~ "censor"
+  ),
+  event = factor(event, levels = c("censor", "treatment", "death")),
+  time = pmin(days_to_treatment, days_to_death, future_observation, na.rm = TRUE)) |>
+  mutate(
+    sex = factor(sex),
+    age_group = factor(age_group),
+    ses = factor(ses)
+  )
 
 x_stroke <- cdm$stroke_crm |> 
   addCohortName() |>
@@ -308,20 +314,38 @@ x <- rbind(x_mi, x_stroke)
 crm_results <- list()
 
 cohorts <- unique(x$cohort_name)
+country <- c(unique(x$country), "All")
 
 for(coh in cohorts){
-  
+  for(cou in country){
+
+if(cou != "All"){
 msdata <- x |>
-    filter(cohort_name == coh) |>
+    filter(cohort_name == coh,
+           country == cou) |>
   mutate(
+    cohort_name = paste0(coh,"_",cou),
     sex = relevel(factor(sex), ref = "Female"),
     age_group = relevel(factor(age_group), ref = "50 to 59"),
     ses = relevel(factor(ses), ref = "5")
   )
 
-cli::cli_inform(c(i = "Fitting CR model for {.pkg {coh}}"))
+name <- paste0(coh,"_",cou)
+} else if (cou == "All") {
+  msdata <- x |>
+    filter(cohort_name == coh) |>
+    mutate(
+      cohort_name = paste0(coh,"_",cou),
+      sex = relevel(factor(sex), ref = "Female"),
+      age_group = relevel(factor(age_group), ref = "50 to 59"),
+      ses = relevel(factor(ses), ref = "5")
+    )
+  
+name <- paste0(coh,"_",cou)
+}
+cli::cli_inform(c(i = "Fitting CR model for {.pkg {name}}"))
 
-cif <- cuminc(Surv(time, event) ~ 1, data = x)
+cif <- cuminc(Surv(time, event) ~ 1, data = msdata)
 
 cif_df <- cif |>
   broom::tidy() |>
@@ -336,7 +360,7 @@ cif_df <- cif |>
     names_to = "state",
     values_to = "prob"
   ) |>
-  mutate(cohort_name = coh,
+  mutate(cohort_name = name,
          result_type = "crm_probabilities")
 
 cif_sr <- omopgenerics::transformToSummarisedResult(
@@ -348,7 +372,7 @@ cif_sr <- omopgenerics::transformToSummarisedResult(
 ) |>
   mutate(cdm_name = omopgenerics::cdmName(cdm))
 
-crm_results[[paste0("crm_prob_",coh, "_mi")]] <- cif_sr
+crm_results[[paste0("crm_prob_",coh, "_", cou)]] <- cif_sr
 ###
 
 sex_count <- length(unique(msdata$sex))
@@ -368,7 +392,7 @@ cr_model <- crr(
 tidy_adj_res <- tidy(cr_model) |>
   select("variable_level" = "term", "coef" = "estimate", "se" = "std.error") |>
   mutate(
-    cohort_name = coh,
+    cohort_name = name,
     cdm_name = omopgenerics::cdmName(cdm),
     variable_name = "Competing risk coefficients",
     result_type = "cr_coefficients"
@@ -379,7 +403,15 @@ tidy_adj_res <- tidy(cr_model) |>
     settings = c("result_type")
   )
 
-crm_results[[paste0("mrm_coef_",coh, "_mi")]] <- tidy_adj_res
+crm_results[[paste0("mrm_coef_",coh, "_", cou)]] <- tidy_adj_res
 
 }
 }
+}
+
+all_crm_results <- crm_results |>
+  purrr::compact() |>
+  omopgenerics::bind() |>
+  omopgenerics::newSummarisedResult()
+
+results[["crm"]] <- all_crm_results
