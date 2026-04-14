@@ -156,7 +156,7 @@ logMessage("INSTANTIATE ANTIHYPERTENSIVE COHORT - STROKE")
 
 cdm$antihypertensive_stroke <- unionCohorts(
   cohort = cdm$stroke_drugs_after_event,
-  cohortId = c("acei_arbs_stroke", "calcium_channel_blockers_stroke", "thiazide_diuretics_stroke"),
+  cohortId = c("acei_arbs_stroke", "beta_blockers_stroke", "calcium_channel_blockers_stroke", "thiazide_diuretics_stroke"),
   gap = 28,
   keepOriginalCohorts = FALSE,
   name = "antihypertensive_stroke"
