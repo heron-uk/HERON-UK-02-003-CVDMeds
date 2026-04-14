@@ -1,15 +1,10 @@
-cdm$acute_mi_crm <- cdm$acute_mi_first |>
-  requireInDateRange(study_period,
-                     name = "acute_mi_crm") |>
-  requireAge(ageRange = c(18,150))
-
 mi_cohorts <- settings(cdm$mi_drugs_first) |>
   pull(cohort_name)
 
 
 for(coh in mi_cohorts){
   name = paste0("crm_", coh)
-cdm[[name]] <- cdm$acute_mi_crm |>
+cdm[[name]] <- cdm$acute_mi_first|>
   PatientProfiles::addCohortIntersectDays(
     targetCohortTable = "mi_drugs_first",
     targetCohortId = paste0(coh),
@@ -133,11 +128,6 @@ x_mi <- cdm$mi_crm |>
 
 #### Stroke
 
-cdm$ischemic_stroke_crm <- cdm$stroke_first |>
-  requireInDateRange(study_period,
-                     name = "ischemic_stroke_crm") |>
-  requireAge(ageRange = c(18,150))
-
 stroke_cohorts <- settings(cdm$stroke_drugs_first) |>
   filter(!cohort_name %in% c("beta_blockers_hf",
                              "beta_blockers_no_hf")) |>
@@ -146,7 +136,7 @@ stroke_cohorts <- settings(cdm$stroke_drugs_first) |>
 
 for(coh in stroke_cohorts){
   name = paste0("crm_", coh)
-  cdm[[name]] <- cdm$ischemic_stroke_crm |>
+  cdm[[name]] <- cdm$stroke_first |>
     PatientProfiles::addCohortIntersectDays(
       targetCohortTable = "stroke_drugs_first",
       targetCohortId = coh,

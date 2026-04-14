@@ -6,10 +6,10 @@ results[["cohort_count_mi_drugs"]] <- cdm$mi_drugs_final |>
 results[["cohort_count_stroke_drugs"]] <- cdm$stroke_drugs_final |>
   summariseCohortCount()
 
-results[["cohort_count_mis"]] <- cdm$acute_mi_crm |>
+results[["cohort_count_mis"]] <- cdm$acute_mi_first |>
   summariseCohortCount()
 
-results[["cohort_count_stroke"]] <- cdm$ischemic_stroke_crm |>
+results[["cohort_count_stroke"]] <- cdm$stroke_first |>
   summariseCohortCount()
 
 results[["cohort_code_use_mi_drugs"]] <- summariseCohortCodeUse(
@@ -25,13 +25,13 @@ results[["cohort_code_use_stroke_drugs"]] <-summariseCohortCodeUse(
 )
 
 results[["cohort_code_use_mi"]] <- summariseCohortCodeUse(
-  cohortTable = "acute_mi_crm",
+  cohortTable = "acute_mi_first",
   cdm = cdm,
   timing = "entry"
 )
 
 results[["cohort_code_use_stroke"]] <-summariseCohortCodeUse(
-  cohortTable = "ischemic_stroke_crm",
+  cohortTable = "stroke_first",
   cdm = cdm,
   timing = "entry"
 )
@@ -42,10 +42,10 @@ results[["cohort_attrition_mi_drugs"]] <- cdm$mi_drugs_final |>
 results[["cohort_attrition_stroke_drugs"]] <- cdm$stroke_drugs_final |>
   summariseCohortAttrition()
 
-results[["cohort_attrition_mi"]] <- cdm$acute_mi_crm |>
+results[["cohort_attrition_mi"]] <- cdm$acute_mi_first |>
   summariseCohortAttrition()
 
-results[["cohort_attrition_stroke"]] <- cdm$ischemic_stroke_crm |>
+results[["cohort_attrition_stroke"]] <- cdm$stroke_first |>
   summariseCohortAttrition()
 
 ## Comorbidity Codelists
@@ -122,7 +122,7 @@ char_mi <- summariseCharacteristics(cdm$mi_chars,
                                           c(-28, -1)
                                         )
                                       ),
-                                      "Prior ischemic stroke (-Inf to -1)" = list(
+                                      "Prior stroke (-Inf to -1)" = list(
                                         targetCohortTable = "stroke",
                                         window = list(
                                           c(-Inf, -1)
