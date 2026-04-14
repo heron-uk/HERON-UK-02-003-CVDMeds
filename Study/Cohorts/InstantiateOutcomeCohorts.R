@@ -11,8 +11,7 @@ cdm$acute_mi <- conceptCohort(
   conceptSet = acute_mi_cl,
   name = "acute_mi"
 ) |> 
-  collapseCohorts(gap = 28,
-                  name = "acute_mi") |>
+  collapseCohorts(gap = 28) |>
   requireDemographics(
     ageRange = c(18, 150),
     minPriorObservation = 365,
@@ -44,8 +43,7 @@ cdm$stroke <- conceptCohort(
   conceptSet = stroke_cl,
   name = "stroke"
 ) |> 
-  collapseCohorts(gap = 28,
-                  name = "stroke") |>
+  collapseCohorts(gap = 28) |>
   requireDemographics(
     ageRange = c(18, 150),
     minPriorObservation = 365,
