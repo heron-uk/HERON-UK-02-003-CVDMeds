@@ -1,6 +1,6 @@
 # Cohort Counts + Attrition
 
-results[["cohort_count_mi_drugs"]] <- cdm$mi_drugs_final |>
+results[["cohort_count_mi_drugs"]] <- cdm$mi_drugs_first |>
   summariseCohortCount()
 
 results[["cohort_count_stroke_drugs"]] <- cdm$stroke_drugs_final |>
@@ -193,6 +193,7 @@ char_mi <- summariseCharacteristics(cdm$mi_chars,
                                       ),
                                       "Future drug use (0 to 28)" = list(
                                         targetCohortTable = "mi_drug_char",
+                                        targetEndDate = "cohort_start_date",
                                         window = list(
                                           c(0, 28)
                                         )
@@ -336,6 +337,7 @@ char_stroke <- summariseCharacteristics(cdm$stroke_chars,
                                           ),
                                           "Future drug use (0 to 28)" = list(
                                             targetCohortTable = "stroke_drug_char",
+                                            targetEndDate = "cohort_start_date",
                                             window = list(
                                               c(0, 28)
                                             )
